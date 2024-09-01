@@ -18,16 +18,16 @@ import kotlin.coroutines.CoroutineContext
 
 class WebSocketHandler(
     private val objectMapper: ObjectMapper,
-    private val dispatcher: CoroutineDispatcher,
+    private val scope: CoroutineScope,
     private val playerService: PlayerService,
     private val gameService: GameService,
     private val sessionService: SessionService
 
-) : TextWebSocketHandler(), CoroutineScope {
-    override val coroutineContext: CoroutineContext = dispatcher
+) : TextWebSocketHandler() {
+
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
-        launch {
+        scope.launch {
             playerService.createPlayer(session)
             println("PLAYER CONNECTED")
         }
@@ -41,7 +41,7 @@ class WebSocketHandler(
             return
         }
 
-        launch {
+        scope.launch {
             when (command.action) {
                 ActionType.CREATE_GAME -> gameService.createGame(session)
                 ActionType.JOIN_GAME -> playerService.joinGame(session, command.gameId)
@@ -61,7 +61,7 @@ class WebSocketHandler(
 
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        launch { playerService.deactivate(session) }
+        scope.launch { playerService.deactivate(session) }
     }
 
 }
