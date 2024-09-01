@@ -1,0 +1,30 @@
+version: '3.1'
+services:
+  app:
+    container_name: tec-tac-toe
+    image: tec-tac-toe
+    build: ./
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_R2DBC_URL=r2dbc:postgresql://db:5432/tec-tac-toe
+      - SPRING_R2DBC_USERNAME=postgres
+      - SPRING_R2DBC_PASSWORD=1234
+    depends_on:
+      - db
+    networks:
+      - my-network
+
+  db:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=tec-tac-toe
+    networks:
+      - my-network
+
+networks:
+  my-network:
