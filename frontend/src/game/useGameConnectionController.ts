@@ -124,7 +124,7 @@ export function useGameConnectionController({
     sendJsonMessage(payload);
   }
   function onResponseError(response: ServerError) {
-    if ((response.errorMessage = "Game is not exist")) {
+    if ((response.errorMessage == "Game is not exist")) {
       navigate("/", { replace: true });
     }
     toast(`Server Error: ${response.errorMessage}`, {
