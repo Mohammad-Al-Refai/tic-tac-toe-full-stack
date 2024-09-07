@@ -27,7 +27,7 @@ export function LandingPage({
         onRefresh={onRefresh}
       />
       <Button variant="secondary" onClick={onCreateClicked}>
-        Create Game
+        New Game
       </Button>
     </div>
   );

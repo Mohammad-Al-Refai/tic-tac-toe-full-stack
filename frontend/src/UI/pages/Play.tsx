@@ -63,7 +63,7 @@ export function PlayPage({ onCellClicked, join, quitGame }: PlayProps) {
           <PlayerProfile name={opponent.name} type="OPPONENT" />
         </div>
         <TextView color={"secondary"} fontSize="XL3" className="mt-xl mb-xl">
-          {Iam == turn ? "Your turn" : `${turn} turn`}
+          {Iam == turn ? "Your turn" : `${opponent.name} turn`}
         </TextView>
       </If>
       <Board board={board} onCellClicked={onCellClicked} Iam={Iam} />
@@ -82,7 +82,7 @@ function PlayerProfile({ name, type }: PlayerProfileProps) {
         color={type == "ME" ? theme.colors.secondary : theme.colors.tertiary}
       />
       <TextView color="onBackground" className="mt-l" fontSize="M">
-        {type == "ME" ? "Me" : name}
+        {type == "ME" ? "You" : name}
       </TextView>
     </div>
   );
