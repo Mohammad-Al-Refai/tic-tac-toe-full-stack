@@ -626,44 +626,40 @@ p {
   font-size: var(--fontSize-xl5);
 }
 
-.br-10 {
-  border-radius: var(--percentage-10);
+.br-xs {
+  border-radius: var(--spacing-xs);
 }
 
-.br-20 {
-  border-radius: var(--percentage-20);
+.br-s {
+  border-radius: var(--spacing-s);
 }
 
-.br-30 {
-  border-radius: var(--percentage-30);
+.br-m {
+  border-radius: var(--spacing-m);
 }
 
-.br-40 {
-  border-radius: var(--percentage-40);
+.br-l {
+  border-radius: var(--spacing-l);
 }
 
-.br-50 {
-  border-radius: var(--percentage-50);
+.br-xl {
+  border-radius: var(--spacing-xl);
 }
 
-.br-60 {
-  border-radius: var(--percentage-60);
+.br-xl2 {
+  border-radius: var(--spacing-xl2);
 }
 
-.br-70 {
-  border-radius: var(--percentage-70);
+.br-xl3 {
+  border-radius: var(--spacing-xl3);
 }
 
-.br-80 {
-  border-radius: var(--percentage-80);
+.br-xl4 {
+  border-radius: var(--spacing-xl4);
 }
 
-.br-90 {
-  border-radius: var(--percentage-90);
-}
-
-.br-100 {
-  border-radius: var(--percentage-100);
+.br-xl5 {
+  border-radius: var(--spacing-xl5);
 }
 label {
   font-size: var(--fontSize-l);

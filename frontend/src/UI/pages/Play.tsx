@@ -10,6 +10,7 @@ import { Button } from "../components/Button";
 import { useProfile } from "../../hooks/useProfile";
 import { useTheme } from "styled-components";
 import { PersonCircle } from "react-bootstrap-icons";
+import { toast } from "react-toastify";
 
 export function PlayPage({ onCellClicked, join, quitGame }: PlayProps) {
   const [isGameIdValid, setIsGameIdValid] = useState(false);
@@ -24,17 +25,47 @@ export function PlayPage({ onCellClicked, join, quitGame }: PlayProps) {
       join(String(gameId));
     }
   }, []);
-  useEffect(() => {
-    if (opponent.name != "") {
-      console.log(opponent.name);
-    }
-  }, [opponent.name]);
+  function onCopy() {
+    window.navigator.clipboard.writeText(location.href);
+    toast("Copied");
+  }
   if (!isGameIdValid) {
     return <h1>Invalid gameId</h1>;
   }
   if (opponent.id == "") {
     return (
       <div className="flex col align-items-center justify-content-center mt-xl4">
+        <div className="p-xl br-m mt-xl3 mb-xl3 bg-secondary">
+          <TextView
+            as="span"
+            className="ml-xs mr-xs"
+            fontSize="S"
+            color="onTertiary"
+          >
+            invite your friend by
+          </TextView>
+          <TextView
+            as="span"
+            className="ml-xs mr-xs"
+            fontSize="S"
+            color="primary"
+            bold
+            underline
+            pointer
+            onClick={onCopy}
+          >
+            copy
+          </TextView>
+          <TextView
+            as="span"
+            className="ml-xs mr-xs"
+            fontSize="S"
+            color="onTertiary"
+            onClick={onCopy}
+          >
+            game URL
+          </TextView>
+        </div>
         <TextView fontSize={"XL"} color={"secondary"}>
           Waiting for opponent...
         </TextView>
