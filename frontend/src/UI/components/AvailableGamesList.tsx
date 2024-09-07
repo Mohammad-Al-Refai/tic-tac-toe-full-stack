@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { TextView } from "./Text";
 import { Button } from "./Button";
+import { useEffect, useState } from "react";
 
 const StyledListContainer = styled.div`
   display: flex;
@@ -18,14 +19,21 @@ export function AvailableGamesList({
   onRefresh,
   onSelectGame,
 }: AvailableGamesListProps) {
+  const [intervalId, setIntervalId] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => {
+      onRefresh();
+    }, 3000);
+    setIntervalId(id);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
   return (
     <StyledListContainer>
       <TextView fontSize="M" color="onBackground">
         Available Games
       </TextView>
-      <Button variant="secondary" onClick={onRefresh}>
-        Refresh
-      </Button>
       <StyledList>
         {games.map((game) => {
           return (

@@ -16,11 +16,12 @@ const StyledButton = styled.button<{
   color: ${(props) => props.theme.colors[props.$color]};
 `;
 
-export function Button({ variant, children, onClick }: ButtonProps) {
+export function Button({ variant, children, onClick, className }: ButtonProps) {
   switch (variant) {
     case "primary":
       return (
         <StyledButton
+          className={className}
           $background="primary"
           $color="onPrimary"
           onClick={onClick}
@@ -31,6 +32,7 @@ export function Button({ variant, children, onClick }: ButtonProps) {
     case "secondary":
       return (
         <StyledButton
+          className={className}
           $background="secondary"
           $color="onSecondary"
           onClick={onClick}
@@ -41,6 +43,7 @@ export function Button({ variant, children, onClick }: ButtonProps) {
     case "tertiary":
       return (
         <StyledButton
+          className={className}
           $background="tertiary"
           $color="onTertiary"
           onClick={onClick}
@@ -57,4 +60,5 @@ interface ButtonProps {
   variant: ThemeColors;
   children: ReactNode;
   onClick: () => void;
+  className?: string;
 }
