@@ -34,7 +34,7 @@ class GameService(
                 isPrivate = false,
                 isDone = false,
                 adminId = adminId,
-                board = Board().board,
+                board = Board(emptyArray()).board,
                 currentCellType = CellState.NONE,
                 name = generateGameName(sessionService.getSessionId(session)),
             )
@@ -138,7 +138,7 @@ class GameService(
             sessionService.sendError(session, "It's not your turn yet", requestId)
             return
         }
-        var localBoard = Board().loadBoard(localGame.board)
+        var localBoard = Board(localGame.board)
         if (!localBoard.update(row, column, localGame.currentCellType)) {
             sessionService.sendError(session, "Is filled", requestId)
             return
@@ -159,7 +159,7 @@ class GameService(
             )
         activeGames[gameId] = savedGame
         val newState = activeGames[gameId]
-        localBoard = Board().loadBoard(newState?.board!!)
+        localBoard = Board(newState?.board!!)
         sessionService.getSessionByPlayerId(localGame.playerId1!!).let {
             if (it != null) sessionService.sendMessage(it, response)
         }

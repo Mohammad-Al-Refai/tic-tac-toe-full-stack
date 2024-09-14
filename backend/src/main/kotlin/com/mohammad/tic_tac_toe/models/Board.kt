@@ -1,15 +1,15 @@
 package com.mohammad.tic_tac_toe.models
 
-class Board {
-    var board: Array<Array<String>> = arrayOf()
-
+class Board(
+    var board: Array<Array<String>>,
+) {
     fun loadBoard(array: Array<Array<String>>): Board {
         board = array
         return this
     }
 
     init {
-        if (board.isNotEmpty()) {
+        if (board.isEmpty()) {
             board =
                 arrayOf(
                     arrayOf(
