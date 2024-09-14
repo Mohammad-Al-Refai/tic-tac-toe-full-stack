@@ -1,21 +1,41 @@
 package com.mohammad.tic_tac_toe.models
 
 class Board {
-    private var board: Array<Array<String>> = arrayOf()
-    fun loadBoard(array: Array<Array<String>>):Board {
+    var board: Array<Array<String>> = arrayOf()
+
+    fun loadBoard(array: Array<Array<String>>): Board {
         board = array
         return this
     }
 
-    fun createEmptyBoard(): Array<Array<String>> {
-        return arrayOf(
-            arrayOf(CellState.NONE.toString(), CellState.NONE.toString(), CellState.NONE.toString()),
-            arrayOf(CellState.NONE.toString(), CellState.NONE.toString(), CellState.NONE.toString()),
-            arrayOf(CellState.NONE.toString(), CellState.NONE.toString(), CellState.NONE.toString())
-        )
+    init {
+        if (board.isNotEmpty()) {
+            board =
+                arrayOf(
+                    arrayOf(
+                        CellState.NONE.toString(),
+                        CellState.NONE.toString(),
+                        CellState.NONE.toString(),
+                    ),
+                    arrayOf(
+                        CellState.NONE.toString(),
+                        CellState.NONE.toString(),
+                        CellState.NONE.toString(),
+                    ),
+                    arrayOf(
+                        CellState.NONE.toString(),
+                        CellState.NONE.toString(),
+                        CellState.NONE.toString(),
+                    ),
+                )
+        }
     }
 
-    fun update(row: Int, column: Int, value: CellState): Boolean {
+    fun update(
+        row: Int,
+        column: Int,
+        value: CellState,
+    ): Boolean {
         if (board[row][column] != CellState.NONE.toString()) {
             return false
         }
@@ -23,9 +43,7 @@ class Board {
         return true
     }
 
-    fun get(): Array<Array<String>> {
-        return board
-    }
+    fun get(): Array<Array<String>> = board
 
     fun isWin(): CellState {
         for (i in board.indices) {

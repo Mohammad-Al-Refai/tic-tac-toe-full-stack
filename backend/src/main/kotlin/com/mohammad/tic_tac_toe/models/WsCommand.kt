@@ -1,6 +1,6 @@
 package com.mohammad.tic_tac_toe.models
 
-import java.util.*
+import java.util.UUID
 
 enum class ActionType {
     CREATE_GAME,

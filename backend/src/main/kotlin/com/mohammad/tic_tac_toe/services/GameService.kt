@@ -1,4 +1,3 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports")
 
 package com.mohammad.tic_tac_toe.services
 
@@ -6,10 +5,17 @@ import com.mohammad.tic_tac_toe.models.Board
 import com.mohammad.tic_tac_toe.models.CellState
 import com.mohammad.tic_tac_toe.models.Game
 import com.mohammad.tic_tac_toe.repo.GameRepo
-import com.mohammad.tic_tac_toe.responses.*
+import com.mohammad.tic_tac_toe.responses.AvailableGames
+import com.mohammad.tic_tac_toe.responses.GameCreated
+import com.mohammad.tic_tac_toe.responses.GameDraw
+import com.mohammad.tic_tac_toe.responses.JoinedGame
+import com.mohammad.tic_tac_toe.responses.NewPlayerJoinedGame
+import com.mohammad.tic_tac_toe.responses.PlayerQuitGame
+import com.mohammad.tic_tac_toe.responses.UpdateGame
+import com.mohammad.tic_tac_toe.responses.WinGame
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.WebSocketSession
-import java.util.*
+import java.util.UUID
 
 @Service
 class GameService(
@@ -28,7 +34,7 @@ class GameService(
                 isPrivate = false,
                 isDone = false,
                 adminId = adminId,
-                board = Board().createEmptyBoard(),
+                board = Board().board,
                 currentCellType = CellState.NONE,
                 name = generateGameName(sessionService.getSessionId(session)),
             )
