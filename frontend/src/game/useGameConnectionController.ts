@@ -22,6 +22,7 @@ import {
 import { toast } from "react-toastify";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+const actionsStack = new Map<string, GameActionRequestType>();
 export function useGameConnectionController({
   onResponseConnected,
   onResponseGameCreated,
@@ -33,9 +34,6 @@ export function useGameConnectionController({
   onResponseWin,
   onResponseDraw,
 }: useGameConnectionControllerProps) {
-  const [actionsStack, setActionsStack] = useState(
-    new Map<GameActionResponseType, GameActionRequestType>()
-  );
   const [isConnected, setIsConnected] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const navigate = useNavigate();
@@ -49,10 +47,6 @@ export function useGameConnectionController({
       },
     }
   );
-
-  useEffect(() => {
-    console.log(actionsStack);
-  }, [actionsStack]);
   useEffect(() => {
     if (!lastJsonMessage) {
       return;
@@ -63,25 +57,26 @@ export function useGameConnectionController({
         break;
       case "GAME_CREATED":
         onResponseGameCreated(lastJsonMessage);
-        popStack("GAME_CREATED");
+        popStack(lastJsonMessage.requestId);
         break;
       case "AVAILABLE_GAMES":
         onResponseRetrieveAvailableGames(lastJsonMessage);
-        popStack("AVAILABLE_GAMES");
+        popStack(lastJsonMessage.requestId);
         break;
       case "JOINED_GAME":
         onResponseJoinedGame(lastJsonMessage);
-        popStack("JOINED_GAME");
+        popStack(lastJsonMessage.requestId);
         break;
       case "UPDATE_GAME":
         onResponseUpdateGame(lastJsonMessage);
-        popStack("UPDATE_GAME");
+        popStack(lastJsonMessage.requestId);
         break;
       case "NEW_PLAYER_JOINED":
         onResponseNewPlayerJoinedGame(lastJsonMessage);
         break;
       case "PLAYER_QUIT":
         onResponseOpponentQuit(lastJsonMessage);
+        popStack(lastJsonMessage.requestId);
         break;
       case "WIN":
         onResponseWin(lastJsonMessage);
@@ -91,71 +86,72 @@ export function useGameConnectionController({
         break;
       case "ERROR":
         onResponseError(lastJsonMessage);
+        popStack(lastJsonMessage.requestId);
         break;
       default:
         break;
     }
   }, [lastJsonMessage]);
   function sendCellUpdate(payload: ReturnType<typeof UpdateGamePayload>) {
-    pushToStack(payload.action);
+    pushToStack(payload.action, payload.requestId);
     setIsSending(true);
     sendJsonMessage(payload);
   }
   function sendJoin(payload: ReturnType<typeof JoinGamePayload>) {
-    pushToStack(payload.action);
+    pushToStack(payload.action, payload.requestId);
     setIsSending(true);
     sendJsonMessage(payload);
   }
   function sendCreateGame(payload: ReturnType<typeof CreateGamePayload>) {
-    pushToStack(payload.action);
+    pushToStack(payload.action, payload.requestId);
     setIsSending(true);
     sendJsonMessage(payload);
   }
   function sendQuitGame(payload: ReturnType<typeof CreateGamePayload>) {
-    pushToStack(payload.action);
+    pushToStack(payload.action, payload.requestId);
     setIsSending(true);
     sendJsonMessage(payload);
   }
   function sendGetIAvailableGames(
     payload: ReturnType<typeof GetAvailableGamesPayload>
   ) {
-    pushToStack(payload.action);
+    pushToStack(payload.action, payload.requestId);
     setIsSending(true);
     sendJsonMessage(payload);
   }
   function onResponseError(response: ServerError) {
-    if ((response.errorMessage == "Game is not exist")) {
+    if (response.errorMessage == "Game is not exist") {
       navigate("/", { replace: true });
     }
     toast(`Server Error: ${response.errorMessage}`, {
       type: "error",
     });
   }
-  function pushToStack(actionType: GameActionRequestType) {
+  function pushToStack(actionType: GameActionRequestType, requestId: string) {
     switch (actionType) {
       case "CREATE_GAME":
-        actionsStack.set("GAME_CREATED", "CREATE_GAME");
+        actionsStack.set(requestId, "CREATE_GAME");
         break;
       case "GET_AVAILABLE_GAMES":
-        actionsStack.set("AVAILABLE_GAMES", "GET_AVAILABLE_GAMES");
-
+        actionsStack.set(requestId, "GET_AVAILABLE_GAMES");
         break;
       case "JOIN_GAME":
-        actionsStack.set("JOINED_GAME", "JOIN_GAME");
-
+        actionsStack.set(requestId, "JOIN_GAME");
         break;
       case "UPDATE_GAME":
-        actionsStack.set("UPDATE_GAME", "UPDATE_GAME");
+        actionsStack.set(requestId, "UPDATE_GAME");
+        break;
+      case "QUIT_GAME":
+        actionsStack.set(requestId, "QUIT_GAME");
         break;
       default:
         break;
     }
-    setActionsStack(new Map(actionsStack));
   }
-  function popStack(actionType: GameActionResponseType) {
-    actionsStack.delete(actionType);
-    setActionsStack(new Map(actionsStack));
+  function popStack(requestId: string) {
+    actionsStack.delete(requestId);
     setIsSending(false);
+    // console.log(requestId, "=> DELETED");
   }
   return {
     isConnected,

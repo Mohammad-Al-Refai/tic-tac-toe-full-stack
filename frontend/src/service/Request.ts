@@ -42,6 +42,7 @@ function ActionRequestToString(action: ActionRequest): GameActionRequestType {
 export function CreateGamePayload(clientId: string) {
   return {
     action: ActionRequestToString(ActionRequest.CREATE_GAME),
+    requestId: generateId(),
     clientId,
   };
 }
@@ -49,6 +50,7 @@ export function JoinGamePayload(clientId: string, gameId: string) {
   return {
     action: ActionRequestToString(ActionRequest.JOIN_GAME),
     clientId,
+    requestId: generateId(),
     gameId,
   };
 }
@@ -56,6 +58,7 @@ export function QuitGamePayload(clientId: string, gameId: string) {
   return {
     action: ActionRequestToString(ActionRequest.QUIT_GAME),
     clientId,
+    requestId: generateId(),
     gameId,
   };
 }
@@ -70,6 +73,7 @@ export function UpdateGamePayload(
     clientId,
     gameId,
     row,
+    requestId: generateId(),
     column,
   };
 }
@@ -77,5 +81,10 @@ export function GetAvailableGamesPayload(clientId: string) {
   return {
     action: ActionRequestToString(ActionRequest.GET_AVAILABLE_GAMES),
     clientId,
+    requestId: generateId(),
   };
+}
+
+function generateId() {
+  return Math.random().toString(36).substr(2, 9);
 }
