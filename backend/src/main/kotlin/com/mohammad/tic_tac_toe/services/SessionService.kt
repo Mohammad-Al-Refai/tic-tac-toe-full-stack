@@ -1,15 +1,14 @@
-package com.mohammad.tec.tac_toe.services
+package com.mohammad.tic_tac_toe.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mohammad.tec.tac_toe.models.ActionResponse
-import com.mohammad.tec.tac_toe.models.GameError
-import com.mohammad.tec.tac_toe.models.IGameResponse
-import com.mohammad.tec.tac_toe.utils.dtoToByteArray
+import com.mohammad.tic_tac_toe.responses.ActionResponse
+import com.mohammad.tic_tac_toe.responses.GameError
+import com.mohammad.tic_tac_toe.responses.IGameResponse
+import com.mohammad.tic_tac_toe.utils.dtoToByteArray
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
-import java.util.*
-
+import java.util.UUID
 
 @Service
 class SessionService(
@@ -18,6 +17,7 @@ class SessionService(
     private val activePlayers = mutableMapOf<UUID, WebSocketSession>()
     private val activeSessionsIds = mutableSetOf<String>()
     private val lock = Any()
+
     fun addSession(session: WebSocketSession) {
         activeSessionsIds.add(session.id)
     }
@@ -27,38 +27,51 @@ class SessionService(
         activePlayers.remove(getPlayerId(session))
     }
 
-
-    fun setPlayerName(session: WebSocketSession, playerName: String) {
+    fun setPlayerName(
+        session: WebSocketSession,
+        playerName: String,
+    ) {
         session.attributes["name"] = playerName
     }
 
-
-    fun setPlayerId(session: WebSocketSession, playerId: UUID) {
+    fun setPlayerId(
+        session: WebSocketSession,
+        playerId: UUID,
+    ) {
         session.attributes["id"] = playerId
         activePlayers[playerId] = session
     }
 
-
-    fun setGameId(session: WebSocketSession, gameId: UUID) {
+    fun setGameId(
+        session: WebSocketSession,
+        gameId: UUID,
+    ) {
         session.attributes["gameId"] = gameId
     }
 
-    fun sendError(session: WebSocketSession, message: String) {
+    fun sendError(
+        session: WebSocketSession,
+        message: String,
+        requestId: String,
+    ) {
         if (!session.isOpen) {
             return
         }
-        val response = GameError(action = ActionResponse.ERROR, errorMessage = message)
+        val response = GameError(action = ActionResponse.ERROR, errorMessage = message, requestId = requestId)
         session.sendMessage(
             TextMessage(
                 dtoToByteArray(
                     response,
-                    objectMapper
-                )
-            )
+                    objectMapper,
+                ),
+            ),
         )
     }
 
-    fun sendMessage(session: WebSocketSession, response: IGameResponse) {
+    fun sendMessage(
+        session: WebSocketSession,
+        response: IGameResponse,
+    ) {
         if (!session.isOpen) {
             return
         }
@@ -69,23 +82,22 @@ class SessionService(
     }
 
     fun getPlayerName(session: WebSocketSession): String = session.attributes["name"].toString()
-    fun getPlayerId(session: WebSocketSession): UUID? {
-        return try {
+
+    fun getPlayerId(session: WebSocketSession): UUID? =
+        try {
             UUID.fromString(session.attributes["id"].toString())
         } catch (error: IllegalArgumentException) {
             null
         }
-    }
 
-    fun getGameId(session: WebSocketSession): UUID? {
-        return try {
+    fun getGameId(session: WebSocketSession): UUID? =
+        try {
             UUID.fromString(session.attributes["gameId"].toString())
         } catch (error: IllegalArgumentException) {
             null
         }
 
-    }
-
     fun getSessionId(session: WebSocketSession) = session.id
+
     fun getSessionByPlayerId(id: UUID) = activePlayers[id]
 }

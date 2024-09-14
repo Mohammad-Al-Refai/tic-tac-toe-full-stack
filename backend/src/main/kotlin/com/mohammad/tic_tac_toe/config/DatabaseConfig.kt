@@ -1,4 +1,4 @@
-package com.mohammad.tec.tac_toe.config
+package com.mohammad.tic_tac_toe.config
 
 import io.r2dbc.spi.ConnectionFactory
 import org.springframework.context.annotation.Bean

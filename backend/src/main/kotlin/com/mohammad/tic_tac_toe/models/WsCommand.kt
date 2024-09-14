@@ -1,13 +1,13 @@
-package com.mohammad.tec.tac_toe.models
+package com.mohammad.tic_tac_toe.models
 
-import java.util.*
+import java.util.UUID
 
 enum class ActionType {
     CREATE_GAME,
     JOIN_GAME,
     UPDATE_GAME,
     GET_AVAILABLE_GAMES,
-    QUIT_GAME
+    QUIT_GAME,
 }
 
 data class WsCommand(
@@ -17,5 +17,6 @@ data class WsCommand(
     val board: Array<Array<String>>?,
     val isGamePrivate: Boolean?,
     val row: Int?,
-    val column: Int?
+    val column: Int?,
+    val requestId: String,
 )

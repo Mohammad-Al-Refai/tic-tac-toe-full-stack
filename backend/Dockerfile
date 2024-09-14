@@ -28,7 +28,7 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # Copy the JAR file from the builder stage
-COPY --from=builder /app/build/libs/tec.tac-toe-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/build/libs/tic-tac-toe-0.0.1-SNAPSHOT.jar app.jar
 
 # Specify the entry point for the container
 ENTRYPOINT ["java","-jar","app.jar"]

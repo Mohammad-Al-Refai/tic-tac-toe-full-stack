@@ -1,52 +1,72 @@
-package com.mohammad.tec.tac_toe.services
 
-import com.mohammad.tec.tac_toe.models.*
-import com.mohammad.tec.tac_toe.repo.GameRepo
+package com.mohammad.tic_tac_toe.services
+
+import com.mohammad.tic_tac_toe.models.Board
+import com.mohammad.tic_tac_toe.models.CellState
+import com.mohammad.tic_tac_toe.models.Game
+import com.mohammad.tic_tac_toe.repo.GameRepo
+import com.mohammad.tic_tac_toe.responses.AvailableGames
+import com.mohammad.tic_tac_toe.responses.GameCreated
+import com.mohammad.tic_tac_toe.responses.GameDraw
+import com.mohammad.tic_tac_toe.responses.JoinedGame
+import com.mohammad.tic_tac_toe.responses.NewPlayerJoinedGame
+import com.mohammad.tic_tac_toe.responses.PlayerQuitGame
+import com.mohammad.tic_tac_toe.responses.UpdateGame
+import com.mohammad.tic_tac_toe.responses.WinGame
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.WebSocketSession
-import java.util.*
-
+import java.util.UUID
 
 @Service
 class GameService(
-    private val gameRepo: GameRepo, private var sessionService: SessionService
+    private val gameRepo: GameRepo,
+    private var sessionService: SessionService,
 ) {
     val activeGames: MutableMap<UUID, Game> = mutableMapOf()
-    suspend fun createGame(session: WebSocketSession) {
+
+    suspend fun createGame(
+        session: WebSocketSession,
+        requestId: String,
+    ) {
         val adminId = sessionService.getPlayerId(session) ?: return
-        val game = Game(
-            isPrivate = false,
-            isDone = false,
-            adminId = adminId,
-            board = Board().createEmptyBoard(),
-            currentCellType = CellState.NONE,
-            name = generateGameName(sessionService.getSessionId(session))
-        )
+        val game =
+            Game(
+                isPrivate = false,
+                isDone = false,
+                adminId = adminId,
+                board = Board(emptyArray()).board,
+                currentCellType = CellState.NONE,
+                name = generateGameName(sessionService.getSessionId(session)),
+            )
         val savedGame = gameRepo.save(game)
         activeGames[savedGame.id!!] = savedGame
-        sessionService.sendMessage(session, GameCreated(game = savedGame))
+        sessionService.sendMessage(session, GameCreated(game = savedGame, requestId = requestId))
     }
 
-    suspend fun joinGame(session: WebSocketSession, gameId: UUID?) {
+    suspend fun joinGame(
+        session: WebSocketSession,
+        gameId: UUID?,
+        requestId: String,
+    ) {
         if (gameId == null) {
-            sessionService.sendError(session, "Missing gameId")
+            sessionService.sendError(session, "Missing gameId", requestId)
             return
         }
         if (isPlayerHasGames(session)) {
-            sessionService.sendError(session, "You can't create another game")
+            sessionService.sendError(session, "You can't create another game", requestId)
             return
         }
         if (isPlayerInActiveGame(session)) {
-            sessionService.sendError(session, "You already joined game")
+            sessionService.sendError(session, "You already joined game", requestId)
             return
         }
         val game = getGame(gameId)
         if (game == null) {
-            sessionService.sendError(session, "Game is not exist")
+            sessionService.sendError(session, "Game is not exist", requestId)
             return
         }
         if (game.isDone) {
-            sessionService.sendError(session, "Game is done")
+            sessionService.sendError(session, "Game is done", requestId)
             return
         }
         if (game.playerId1 == null) {
@@ -60,8 +80,7 @@ class GameService(
             val savedGame = gameRepo.save(game)
             activeGames[gameId] = savedGame
             sessionService.setGameId(session, gameId)
-            sessionService.sendMessage(session, JoinedGame(game = savedGame))
-
+            sessionService.sendMessage(session, JoinedGame(game = savedGame, requestId = requestId))
         } else if (game.playerId2 == null) {
             game.apply {
                 playerId2 = sessionService.getPlayerId(session)
@@ -72,51 +91,56 @@ class GameService(
                 game = savedGame,
                 newPlayerId = savedGame.playerId2!!,
                 newPlayerName = savedGame.player2Name!!,
-                targetId = savedGame.playerId1!!
+                targetId = savedGame.playerId1!!,
             )
             activeGames[gameId] = savedGame
             sessionService.setGameId(session, gameId)
-            sessionService.sendMessage(session, JoinedGame(game = game))
+            sessionService.sendMessage(session, JoinedGame(game = game, requestId = requestId))
         } else {
-            sessionService.sendError(session, "Game is full")
+            sessionService.sendError(session, "Game is full", requestId)
         }
-
     }
 
-    suspend fun updateGame(session: WebSocketSession, gameId: UUID?, row: Int?, column: Int?) {
+    suspend fun updateGame(
+        session: WebSocketSession,
+        requestId: String,
+        gameId: UUID?,
+        row: Int?,
+        column: Int?,
+    ) {
         if (gameId == null) {
-            sessionService.sendError(session, "Missing gameId")
+            sessionService.sendError(session, "Missing gameId", requestId)
             return
         }
         if (row == null) {
-            sessionService.sendError(session, "Missing row")
+            sessionService.sendError(session, "Missing row", requestId)
             return
         }
         if (column == null) {
-            sessionService.sendError(session, "Missing column")
+            sessionService.sendError(session, "Missing column", requestId)
             return
         }
 
         if (sessionService.getGameId(session) != gameId) {
-            sessionService.sendError(session, "You are not in the game")
+            sessionService.sendError(session, "You are not in the game", requestId)
             return
         }
         val localGame = activeGames[gameId]
         if (localGame == null) {
-            sessionService.sendError(session, "Game is not exist")
+            sessionService.sendError(session, "Game is not exist", requestId)
             return
         }
         if (localGame.isDone) {
-            sessionService.sendError(session, "Game is done")
+            sessionService.sendError(session, "Game is done", requestId)
             return
         }
         if (localGame.playerIdTurn != sessionService.getPlayerId(session)) {
-            sessionService.sendError(session, "It's not your turn yet")
+            sessionService.sendError(session, "It's not your turn yet", requestId)
             return
         }
-        var localBoard = Board().loadBoard(localGame.board)
+        var localBoard = Board(localGame.board)
         if (!localBoard.update(row, column, localGame.currentCellType)) {
-            sessionService.sendError(session, "Is filled")
+            sessionService.sendError(session, "Is filled", requestId)
             return
         }
         localGame.apply {
@@ -125,15 +149,17 @@ class GameService(
             currentCellType = getCellTurn(localGame.currentCellType)
         }
         val savedGame = gameRepo.save(localGame)
-        val response = UpdateGame(
-            gameId = savedGame.id!!,
-            playerIdTurn = savedGame.playerIdTurn!!,
-            board = savedGame.board,
-            turn = savedGame.currentCellType
-        )
+        val response =
+            UpdateGame(
+                gameId = savedGame.id!!,
+                playerIdTurn = savedGame.playerIdTurn!!,
+                board = savedGame.board,
+                turn = savedGame.currentCellType,
+                requestId = requestId,
+            )
         activeGames[gameId] = savedGame
         val newState = activeGames[gameId]
-        localBoard = Board().loadBoard(newState?.board!!)
+        localBoard = Board(newState?.board!!)
         sessionService.getSessionByPlayerId(localGame.playerId1!!).let {
             if (it != null) sessionService.sendMessage(it, response)
         }
@@ -142,16 +168,20 @@ class GameService(
         }
         if (localBoard.isWin() == CellState.X) {
             sessionService.getSessionByPlayerId(localGame.playerId1!!).let {
-                if (it != null) sessionService.sendMessage(
-                    it,
-                    WinGame(gameId = localGame.id!!, playerId = localGame.playerId1!!, winner = CellState.X)
-                )
+                if (it != null) {
+                    sessionService.sendMessage(
+                        it,
+                        WinGame(gameId = localGame.id!!, playerId = localGame.playerId1!!, winner = CellState.X),
+                    )
+                }
             }
             sessionService.getSessionByPlayerId(localGame.playerId2!!).let {
-                if (it != null) sessionService.sendMessage(
-                    it,
-                    WinGame(gameId = localGame.id!!, playerId = localGame.playerId1!!, winner = CellState.X)
-                )
+                if (it != null) {
+                    sessionService.sendMessage(
+                        it,
+                        WinGame(gameId = localGame.id!!, playerId = localGame.playerId1!!, winner = CellState.X),
+                    )
+                }
             }
             localGame.apply {
                 isDone = true
@@ -162,16 +192,20 @@ class GameService(
         }
         if (localBoard.isWin() == CellState.O) {
             sessionService.getSessionByPlayerId(localGame.playerId1!!).let {
-                if (it != null) sessionService.sendMessage(
-                    it,
-                    WinGame(gameId = localGame.id!!, playerId = localGame.playerId2!!, winner = CellState.O)
-                )
+                if (it != null) {
+                    sessionService.sendMessage(
+                        it,
+                        WinGame(gameId = localGame.id!!, playerId = localGame.playerId2!!, winner = CellState.O),
+                    )
+                }
             }
             sessionService.getSessionByPlayerId(localGame.playerId2!!).let {
-                if (it != null) sessionService.sendMessage(
-                    it,
-                    WinGame(gameId = localGame.id!!, playerId = localGame.playerId2!!, winner = CellState.O)
-                )
+                if (it != null) {
+                    sessionService.sendMessage(
+                        it,
+                        WinGame(gameId = localGame.id!!, playerId = localGame.playerId2!!, winner = CellState.O),
+                    )
+                }
             }
             localGame.apply {
                 isDone = true
@@ -181,16 +215,20 @@ class GameService(
         }
         if (localBoard.isDraw()) {
             sessionService.getSessionByPlayerId(localGame.playerId1!!).let {
-                if (it != null) sessionService.sendMessage(
-                    it,
-                    GameDraw()
-                )
+                if (it != null) {
+                    sessionService.sendMessage(
+                        it,
+                        GameDraw(),
+                    )
+                }
             }
             sessionService.getSessionByPlayerId(localGame.playerId2!!).let {
-                if (it != null) sessionService.sendMessage(
-                    it,
-                    GameDraw()
-                )
+                if (it != null) {
+                    sessionService.sendMessage(
+                        it,
+                        GameDraw(),
+                    )
+                }
             }
             localGame.apply {
                 isDone = true
@@ -211,15 +249,23 @@ class GameService(
         return gameRepo.findUnfinishedGamesForPlayerId(id).isNotEmpty()
     }
 
-    suspend fun newPlayerJoinedNotification(game: Game, targetId: UUID, newPlayerId: UUID, newPlayerName: String) {
+    suspend fun newPlayerJoinedNotification(
+        game: Game,
+        targetId: UUID,
+        newPlayerId: UUID,
+        newPlayerName: String,
+    ) {
         val otherSession = sessionService.getSessionByPlayerId(targetId) ?: return
         if (!otherSession.isOpen) {
             return
         }
         sessionService.sendMessage(
-            otherSession, NewPlayerJoinedGame(
-                game = game, playerId = newPlayerId, playerName = newPlayerName
-            )
+            otherSession,
+            NewPlayerJoinedGame(
+                game = game,
+                playerId = newPlayerId,
+                playerName = newPlayerName,
+            ),
         )
     }
 
@@ -238,8 +284,8 @@ class GameService(
                 PlayerQuitGame(
                     gameId = gameId,
                     playerId = player1Id,
-                    playerName = sessionService.getPlayerName(player1Session)
-                )
+                    playerName = sessionService.getPlayerName(player1Session),
+                ),
             )
             return
         }
@@ -250,15 +296,19 @@ class GameService(
                 PlayerQuitGame(
                     gameId = gameId,
                     playerId = player2Id,
-                    playerName = sessionService.getPlayerName(player2Session)
-                )
+                    playerName = sessionService.getPlayerName(player2Session),
+                ),
             )
         }
     }
 
-    suspend fun getAvailableGames(session: WebSocketSession) =
-        sessionService.sendMessage(session, AvailableGames(games = gameRepo.findAvailableGames()))
-
+    suspend fun getAvailableGames(
+        session: WebSocketSession,
+        requestId: String,
+    ) = sessionService.sendMessage(
+        session,
+        AvailableGames(games = gameRepo.findAvailableGames(), requestId = requestId),
+    )
 
     suspend fun getGame(gameId: UUID?): Game? {
         if (gameId == null) {
@@ -285,7 +335,6 @@ class GameService(
         return if (currentCellType == CellState.X) CellState.O else CellState.X
     }
 
-
     private fun getPlayerTurn(game: Game): UUID? {
         if (game.playerId1 == game.playerIdTurn) {
             return game.playerId2
@@ -296,7 +345,5 @@ class GameService(
         return null
     }
 
-    private fun generateGameName(id: String): String {
-        return "game_${id.substring(0, 5)}"
-    }
+    private fun generateGameName(id: String): String = "game_${id.substring(0, 5)}"
 }

@@ -1,17 +1,11 @@
-package com.mohammad.tec.tac_toe.models
+package com.mohammad.tic_tac_toe.models
 
 import org.jetbrains.annotations.NotNull
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
-import java.util.*
-
-enum class CellState {
-    NONE,
-    X,
-    O
-}
+import java.util.UUID
 
 @Table(name = "games")
 data class Game(
@@ -41,5 +35,5 @@ data class Game(
     var currentCellType: CellState = CellState.NONE,
     var name: String = "",
     @Column
-    var board: Array<Array<String>> = arrayOf()
+    var board: Array<Array<String>> = arrayOf(),
 )

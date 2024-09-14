@@ -1,4 +1,4 @@
-package com.mohammad.tec.tac_toe
+package com.mohammad.tic_tac_toe
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.RestController
 class Application
 
 fun main(args: Array<String>) {
-	runApplication<Application>(*args)
+    runApplication<Application>(*args)
 }
 
 @RestController
 @RequestMapping("/")
-class App{
-	@GetMapping()
-	fun app():String{
-		return "Running"
-	}
+class App {
+    @GetMapping
+    fun app(): String = "Running"
 }
