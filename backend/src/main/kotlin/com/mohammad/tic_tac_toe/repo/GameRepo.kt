@@ -1,7 +1,7 @@
 package com.mohammad.tic_tac_toe.repo
 
-import com.mohammad.tec.tac_toe.models.Game
-import com.mohammad.tec.tac_toe.responses.AvailableGamesItem
+import com.mohammad.tic_tac_toe.models.Game
+import com.mohammad.tic_tac_toe.responses.AvailableGamesItem
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository

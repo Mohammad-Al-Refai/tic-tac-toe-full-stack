@@ -1,6 +1,6 @@
 package com.mohammad.tic_tac_toe.responses
 
-import com.mohammad.tec.tac_toe.models.CellState
+import com.mohammad.tic_tac_toe.models.CellState
 import java.util.*
 
 data class UpdateGame(

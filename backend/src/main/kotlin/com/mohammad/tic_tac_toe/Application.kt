@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.RestController
 class Application
 
 fun main(args: Array<String>) {
-	runApplication<com.mohammad.tic_tac_toe.Application>(*args)
+    runApplication<Application>(*args)
 }
 
 @RestController
 @RequestMapping("/")
-class App{
-	@GetMapping()
-	fun app():String{
-		return "Running"
-	}
+class App {
+    @GetMapping
+    fun app(): String = "Running"
 }

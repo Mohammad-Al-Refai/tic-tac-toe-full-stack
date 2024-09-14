@@ -1,6 +1,6 @@
 package com.mohammad.tic_tac_toe.repo
 
-import com.mohammad.tec.tac_toe.models.Player
+import com.mohammad.tic_tac_toe.models.Player
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import java.util.*
 

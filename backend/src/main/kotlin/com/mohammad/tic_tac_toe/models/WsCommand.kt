@@ -7,7 +7,7 @@ enum class ActionType {
     JOIN_GAME,
     UPDATE_GAME,
     GET_AVAILABLE_GAMES,
-    QUIT_GAME
+    QUIT_GAME,
 }
 
 data class WsCommand(
@@ -18,5 +18,5 @@ data class WsCommand(
     val isGamePrivate: Boolean?,
     val row: Int?,
     val column: Int?,
-    val requestId:String
+    val requestId: String,
 )

@@ -2,8 +2,8 @@ package com.mohammad.tic_tac_toe.utils
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mohammad.tec.tac_toe.models.WsCommand
-import com.mohammad.tec.tac_toe.responses.IGameResponse
+import com.mohammad.tic_tac_toe.models.WsCommand
+import com.mohammad.tic_tac_toe.responses.IGameResponse
 import java.io.IOException
 
 fun messageToWsCommand(message: String, objectMapper: ObjectMapper): WsCommand? {

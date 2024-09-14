@@ -7,8 +7,6 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
 import java.util.*
 
-
-
 @Table(name = "games")
 data class Game(
     @NotNull
@@ -37,5 +35,5 @@ data class Game(
     var currentCellType: CellState = CellState.NONE,
     var name: String = "",
     @Column
-    var board: Array<Array<String>> = arrayOf()
+    var board: Array<Array<String>> = arrayOf(),
 )
