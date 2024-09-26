@@ -1,13 +1,5 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: "/backend"
-    schedule:
-      interval: daily
-  - package-ecosystem: github-actions
-    directory: "/frontend"
-    schedule:
-      interval: daily   
   - package-ecosystem: gradle
     directory: "/backend"
     schedule:
@@ -16,7 +8,7 @@ updates:
   - package-ecosystem: npm
     directory: "/frontend"
     schedule:
-      interval: weekly
+      interval: daily
     groups:
       dev-dependencies:
         patterns:
