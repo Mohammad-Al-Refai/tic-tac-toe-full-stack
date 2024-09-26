@@ -1,11 +1,21 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: "/backend"
+    directory: ".*"
     schedule:
       interval: daily
+      
   - package-ecosystem: gradle
     directory: "/backend"
     schedule:
       interval: daily
+      
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+    groups:
+      dev-dependencies:
+        patterns:
+          - "*eslint*"  
     open-pull-requests-limit: 100
