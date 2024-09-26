@@ -43,10 +43,6 @@ docker build -t tic-tac-toe . & docker-compose up
 ./gradlew build
 ```
 
----
-
-
-
 ## Frontend
 
 ### Tech Stack
