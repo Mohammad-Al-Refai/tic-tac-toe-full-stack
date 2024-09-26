@@ -1,10 +1,13 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: ".*"
+    directory: "/backend"
     schedule:
       interval: daily
-      
+  - package-ecosystem: github-actions
+    directory: "/frontend"
+    schedule:
+      interval: daily   
   - package-ecosystem: gradle
     directory: "/backend"
     schedule:
