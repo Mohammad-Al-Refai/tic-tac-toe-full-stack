@@ -1,24 +1,26 @@
-# Tic Tac toe
+# Tic Tac Toe ✖️⭕
 
 [demo](https://github.com/user-attachments/assets/82a60580-8c07-47bd-a76a-fdfd5e4ef3c5)
 
-
-
-
 ## Backend
 
-- Springboot version 3.3.0
-- JVM version 21  [Amazon Corretto JDK 21](https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/downloads-list.html)
-- Kotlin
-- IDE: Intellij IDEA
-- PostgreSQL
-- latest Gradle
+### Tech Stack
 
-To run backend project do the following:
+* Language:
+  * [Kotlin](https://kotlinlang.org/)
+* Build Tools:
+  * [Gradle](https://gradle.org)
+* Database:
+  * [PostgreSQL](https://www.postgresql.org)
+  * [Postgres R2DBC Driver](https://mvnrepository.com/artifact/org.postgresql/r2dbc-postgresql)
+* Framework:
+  * [Spring 6.x/Spring Boot 3.x](https://spring.io)
+  * [Spring Data R2DBC](https://spring.io/projects/spring-data-r2dbc)
+
 
 ### Initialize database
 
-- Create database with name `tec-tac-toe` then make sure it works on port 5432
+* Create database with name `tic-tac-toe` then make sure it works on port 5432
 - Set the PostgreSQL user name in `spring.r2dbc.username` and the password in `spring.r2dbc.password` in application.properties in the resource folder
 
 ### Run project
@@ -29,22 +31,32 @@ To run backend project do the following:
 
 ### Build
 
+#### Docker
+
+```bash
+docker build -t tic-tac-toe . & docker-compose up
+```
+
+#### Gradle
+
 ```bash
 ./gradlew build
 ```
 
 ---
 
-### Docker
 
-```bash
-docker build -t tec-tac-toe . & docker-compose up
-```
 
 ## Frontend
 
-- React js version 18.2.66
-- Vite version 5.2.0
+### Tech Stack
+
+* Language:
+  * TypeScript
+* Build Tools:
+  * Vite
+* Framework:
+  * React
 
 ### Install dependencies
 
