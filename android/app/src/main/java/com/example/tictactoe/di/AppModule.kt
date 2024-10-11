@@ -3,7 +3,6 @@ package com.example.tictactoe.di
 import androidx.navigation.NavHostController
 import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
-import com.example.tictactoe.ui.NavHost.NavHostViewModel
 import com.example.tictactoe.ui.landing.LandingViewModel
 import com.example.tictactoe.ui.loading.LoadingViewModel
 import io.ktor.client.HttpClient
@@ -25,10 +24,7 @@ val appModule = module {
     viewModel { (navController: NavHostController,ticTacToeService:TicTacToeService, gameState: StateFlow<GameState>) ->
         LandingViewModel(navController, get(), gameState)
     }
-    viewModel { (navController: NavHostController,ticTacToeService:TicTacToeService, gameState: StateFlow<GameState>) ->
-        LoadingViewModel(navController, get(), gameState)
-    }
-    viewModel {
-        NavHostViewModel(get())
+    viewModel { (navController: NavHostController, gameState: StateFlow<GameState>) ->
+        LoadingViewModel(navController, gameState)
     }
 }

@@ -22,7 +22,9 @@ class LandingViewModel(
 ) : ViewModel() {
     init {
         viewModelScope.launch {
-            println("----LandingViewModel init: ${ticTacToeService.webSocketSession!!.isActive}")
+            gameState.collect{
+                println("LandingViewModel: $it")
+            }
         }
     }
 

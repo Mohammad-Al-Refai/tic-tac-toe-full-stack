@@ -5,6 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
 import com.example.tictactoe.ui.landing.Landing
@@ -12,19 +13,22 @@ import com.example.tictactoe.ui.landing.LandingViewModel
 import com.example.tictactoe.ui.loading.LoadingPage
 import com.example.tictactoe.ui.loading.LoadingViewModel
 import com.example.tictactoe.ui.play.Play
+import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun NavGraph(navController: NavHostController, navHostViewModel: NavHostViewModel) {
-    var gameState = navHostViewModel.ticTacToeService.gameStateFlow
+fun NavGraph(
+    navController: NavHostController,
+    gameState: StateFlow<GameState>,
+    ticTacToeService: TicTacToeService
+) {
     NavHost(navController = navController, startDestination = Routes.Loading.name) {
         composable(Routes.Loading.name) {
             val loadingViewModel: LoadingViewModel =
                 koinViewModel {
                     parametersOf(
                         navController,
-                        navHostViewModel.ticTacToeService,
                         gameState
                     )
                 }
@@ -35,7 +39,7 @@ fun NavGraph(navController: NavHostController, navHostViewModel: NavHostViewMode
                 koinViewModel {
                     parametersOf(
                         navController,
-                        navHostViewModel.ticTacToeService,
+                        ticTacToeService,
                         gameState
                     )
                 }
