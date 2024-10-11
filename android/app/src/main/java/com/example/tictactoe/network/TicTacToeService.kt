@@ -1,5 +1,6 @@
 package com.example.tictactoe.network
 
+import com.example.tictactoe.models.ActionRequest
 import com.example.tictactoe.models.ActionResponse
 import com.example.tictactoe.models.GameResponse
 import com.example.tictactoe.models.GameState
@@ -10,11 +11,19 @@ import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
@@ -23,94 +32,72 @@ import kotlinx.serialization.json.Json
 
 class TicTacToeService(private val client: HttpClient) {
     private var webSocketSession: DefaultClientWebSocketSession? = null
-    private val _gameStateFlow =
-        MutableStateFlow(GameState())  // Initialize with default state
-    val gameStateFlow: StateFlow<GameState> get() = _gameStateFlow
-
-
+    private val _gameState = MutableStateFlow(GameState())
+    val gameState = _gameState.asStateFlow()
     suspend fun connect() {
-        _gameStateFlow.update {
-            it.copy(
-                isConnected = false,
-                isConnectionError = false,
-                isLoading = true,
-                availableGames = emptyList(),
-                clientId = null
-            )
-        }
+        try {
+            client.webSocket("wss://roasted-nani-mohammad-al-refaai-de14128b.koyeb.app/ws") {
+                webSocketSession = this
+                println("---Connected: ${webSocketSession?.isActive}")
+                webSocketSession!!.incoming.consumeAsFlow()
+                    .filterIsInstance<Frame.Text>()
+                    .mapNotNull { Json.decodeFromString<GameResponse>(it.readText()) }
+                    .collect { response ->
+                        println("---Response: $response")
+                        when (response.action) {
+                            ActionResponse.CONNECTED -> {
+                                _gameState.update {
+                                    it.copy(
+                                        clientId = response.clientId,
+                                        isConnected = true,
+                                        isLoading = false
+                                    )
+                                }
 
-        client.webSocket("wss://roasted-nani-mohammad-al-refaai-de14128b.koyeb.app/ws") {
-            webSocketSession = this
-            println("---Connected: ${webSocketSession?.isActive}")
-            observeSocketMessages()
-        }
+                            }
 
+                            ActionResponse.AVAILABLE_GAMES -> {
+                                _gameState.update {
+                                    it.copy(availableGames = response.games.orEmpty())
+                                }
+                            }
+
+                            ActionResponse.NONE -> TODO()
+                            ActionResponse.ERROR -> TODO()
+                            ActionResponse.GAME_CREATED -> TODO()
+                            ActionResponse.JOINED_GAME -> TODO()
+                            ActionResponse.NEW_PLAYER_JOINED -> TODO()
+                            ActionResponse.UPDATE_GAME -> TODO()
+                            ActionResponse.PLAYER_QUIT -> TODO()
+                            ActionResponse.WIN -> TODO()
+                            ActionResponse.DRAW -> TODO()
+                        }
+                    }
+            }
+        } catch (e: Exception) {
+            println("Error: ${e.message}")
+        }
     }
 
 
     suspend fun getAvailableGames() {
         println("isWebSocketActive?: ${webSocketSession!!.isActive}")
-        if (_gameStateFlow.value.clientId == null) {
-            return
-        }
-        println("---Getting available games: clientId: ${_gameStateFlow.value.clientId}")
+        println("---Getting available games: clientId: ${gameState.value.clientId}")
         try {
-            sendMessage(
-                Json.encodeToString(
-                    GetAvailableGamesPayload.serializer(),
-                    GetAvailableGamesPayload(clientId = _gameStateFlow.value.clientId!!)
+            val message = Json.encodeToString(
+                GetAvailableGamesPayload.serializer(),
+                GetAvailableGamesPayload(
+                    action = ActionRequest.GET_AVAILABLE_GAMES,
+                    clientId = gameState.value.clientId!!
                 )
             )
+            println(message)
+            sendMessage(message)
         } catch (e: Exception) {
-            println("Error while send GetAvailableGamesPayload : ${e.message}")
+            throw Error(e)
         }
-    }
 
 
-    private suspend fun observeSocketMessages() {
-        webSocketSession!!.incoming.consumeAsFlow()
-            .filterIsInstance<Frame.Text>()
-            .mapNotNull { Json.decodeFromString<GameResponse>(it.readText()) }
-            .collect { gameState ->
-                println("---Response: $gameState")
-                when (gameState.action) {
-                    ActionResponse.AVAILABLE_GAMES -> {
-                        println("---Available games: ${gameState.games}")
-                        _gameStateFlow.update {
-                            it.copy(availableGames = gameState.games!!)
-                        }
-                    }
-
-                    ActionResponse.ERROR -> {
-                        println("---Response: $gameState.errorMessage")
-                        _gameStateFlow.update {
-                            it.copy(error = gameState.errorMessage!!)
-                        }
-                    }
-
-                    ActionResponse.CONNECTED -> {
-                        println("---CONNECTED: ${gameState.clientId}")
-                        _gameStateFlow.update {
-                            it.copy(
-                                clientId = gameState.clientId,
-                                isConnected = true,
-                                isLoading = false,
-                                isConnectionError = false
-                            )
-                        }
-                    }
-
-                    ActionResponse.GAME_CREATED -> TODO()
-                    ActionResponse.JOINED_GAME -> TODO()
-                    ActionResponse.NEW_PLAYER_JOINED -> TODO()
-                    ActionResponse.UPDATE_GAME -> TODO()
-                    ActionResponse.PLAYER_QUIT -> TODO()
-                    ActionResponse.WIN -> TODO()
-                    ActionResponse.DRAW -> TODO()
-                    ActionResponse.NONE -> TODO()
-                }
-
-            }
     }
 
     // Send message to WebSocket

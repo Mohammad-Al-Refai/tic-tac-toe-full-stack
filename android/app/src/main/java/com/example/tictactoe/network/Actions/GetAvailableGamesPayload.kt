@@ -7,7 +7,7 @@ import java.util.UUID
 
 @Serializable
 data class GetAvailableGamesPayload(
-    val action: ActionRequest = ActionRequest.GET_AVAILABLE_GAMES,
+    val action: ActionRequest,
     val clientId: String,
     val requestId: String = UUID.randomUUID().toString()
 )

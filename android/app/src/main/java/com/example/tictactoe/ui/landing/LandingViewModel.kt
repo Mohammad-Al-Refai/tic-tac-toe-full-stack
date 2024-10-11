@@ -1,7 +1,9 @@
 package com.example.tictactoe.ui.landing
 
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.tictactoe.models.GameResponse
@@ -9,6 +11,7 @@ import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -20,9 +23,10 @@ class LandingViewModel(
     private val ticTacToeService: TicTacToeService,
     val gameState: StateFlow<GameState>
 ) : ViewModel() {
+
     init {
         viewModelScope.launch {
-            gameState.collect{
+            gameState.collect {
                 println("LandingViewModel: $it")
             }
         }
@@ -32,7 +36,7 @@ class LandingViewModel(
         navHostController.navigate(Routes.Play.name)
     }
 
-    fun getAvailableGamesEvery5Seconds() {
+    suspend fun getAvailableGamesEvery5Seconds() {
         viewModelScope.launch {
             while (true) {
                 println("----Calling getAvailableGames")

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Game(
     val id: String? = null,
-    val adminId: String,
+    val adminId: String? = null,
     val createdAt: String? = null,
     var playerId1: String? = null,
     var playerId2: String? = null,

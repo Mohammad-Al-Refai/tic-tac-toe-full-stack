@@ -13,11 +13,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.tictactoe.models.GameState
 
 
 @Composable
 fun LoadingPage(viewModel: LoadingViewModel) {
-    val state = viewModel.gameState.collectAsState()
+    val state = viewModel.gameState.collectAsState(GameState())
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(innerPadding),

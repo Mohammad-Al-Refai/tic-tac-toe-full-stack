@@ -8,9 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
 
 
 @Composable
@@ -22,7 +21,7 @@ fun Landing(viewModel: LandingViewModel) {
     Scaffold { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             Text(text = "Landing page")
-            Text(text = "Available games: ${state.value.availableGames.size}")
+            Text(text = "Available games: ${state.value?.availableGames?.size}")
 
         }
     }
