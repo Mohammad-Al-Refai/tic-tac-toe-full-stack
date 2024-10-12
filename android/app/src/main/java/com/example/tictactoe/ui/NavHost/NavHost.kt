@@ -12,6 +12,7 @@ import com.example.tictactoe.ui.landing.LandingViewModel
 import com.example.tictactoe.ui.loading.LoadingPage
 import com.example.tictactoe.ui.loading.LoadingViewModel
 import com.example.tictactoe.ui.play.Play
+import com.example.tictactoe.ui.play.PlayViewModel
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -45,7 +46,15 @@ fun NavGraph(
             Landing(landingViewModel)
         }
         composable(Routes.Play.name) {
-            Play()
+            val playViewModel: PlayViewModel =
+                koinViewModel {
+                    parametersOf(
+                        navController,
+                        ticTacToeService,
+                        gameState
+                    )
+                }
+            Play(playViewModel)
         }
     }
 }

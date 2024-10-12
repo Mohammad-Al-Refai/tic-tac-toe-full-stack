@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
@@ -24,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.tictactoe.models.Game
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -51,15 +55,21 @@ fun Landing(viewModel: LandingViewModel) {
         },
         topBar = {
             TopAppBar(title = {
-                Row {
-                    Text(text = "Tic", color = MaterialTheme.colorScheme.primary)
-                    Text(text = "Tac", color = MaterialTheme.colorScheme.secondary)
-                    Text(text = "Toe", color = MaterialTheme.colorScheme.tertiary)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row {
+                        Text(text = "Tic", color = MaterialTheme.colorScheme.primary)
+                        Text(text = "Tac", color = MaterialTheme.colorScheme.secondary)
+                        Text(text = "Toe", color = MaterialTheme.colorScheme.tertiary)
+                    }
+                    Text(fontSize = 13.sp,text=state.value.clientName)
+
                 }
             })
         }) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-
             AvailableGamesList(
                 state.value.availableGames,
                 onJoinClick = { viewModel.joinGame(it) },

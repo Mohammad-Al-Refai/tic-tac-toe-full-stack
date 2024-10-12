@@ -13,6 +13,7 @@ import com.example.tictactoe.models.GameResponse
 import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -35,6 +36,10 @@ class LandingViewModel(
         viewModelScope.launch {
             getAvailableGamesEvery5Seconds()
             gameState.collect {
+                if (it.isGameReady) {
+                    navigateToPlay()
+                    viewModelScope.cancel()
+                }
                 if (it.error != null) {
                     _snackbarEvent.emit(it.error!!)
                 }
@@ -42,7 +47,7 @@ class LandingViewModel(
         }
     }
 
-    fun navigateToPlay() {
+    private fun navigateToPlay() {
         navHostController.navigate(Routes.Play.name)
     }
 

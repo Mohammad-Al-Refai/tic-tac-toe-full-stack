@@ -5,6 +5,7 @@ import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.landing.LandingViewModel
 import com.example.tictactoe.ui.loading.LoadingViewModel
+import com.example.tictactoe.ui.play.PlayViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.websocket.WebSockets
@@ -22,10 +23,13 @@ val appModule = module {
     }
     single { TicTacToeService(get()) }
 
-    viewModel { (navController: NavHostController,ticTacToeService:TicTacToeService, gameState: StateFlow<GameState>) ->
+    viewModel { (navController: NavHostController, ticTacToeService: TicTacToeService, gameState: StateFlow<GameState>) ->
         LandingViewModel(navController, get(), gameState)
     }
     viewModel { (navController: NavHostController, gameState: StateFlow<GameState>) ->
         LoadingViewModel(navController, gameState)
+    }
+    viewModel { (navController: NavHostController, ticTacToeService: TicTacToeService, gameState: StateFlow<GameState>) ->
+        PlayViewModel(navController, get(), gameState)
     }
 }
