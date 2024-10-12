@@ -5,6 +5,7 @@ import com.example.tictactoe.models.ActionResponse
 import com.example.tictactoe.models.GameResponse
 import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.Actions.GetAvailableGamesPayload
+import com.example.tictactoe.network.Actions.JoinGamePayload
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocket
@@ -35,6 +36,14 @@ class TicTacToeService(private val client: HttpClient) {
     private val _gameState = MutableStateFlow(GameState())
     val gameState = _gameState.asStateFlow()
     suspend fun connect() {
+        _gameState.update {
+            it.copy(
+                isConnected = false,
+                isConnectionError = false,
+                isLoading = true,
+                isGetAvailableGamesLoading = false
+            )
+        }
         try {
             client.webSocket("wss://roasted-nani-mohammad-al-refaai-de14128b.koyeb.app/ws") {
                 webSocketSession = this
@@ -58,7 +67,10 @@ class TicTacToeService(private val client: HttpClient) {
 
                             ActionResponse.AVAILABLE_GAMES -> {
                                 _gameState.update {
-                                    it.copy(availableGames = response.games.orEmpty())
+                                    it.copy(
+                                        availableGames = response.games.orEmpty(),
+                                        isGetAvailableGamesLoading = false
+                                    )
                                 }
                             }
 
@@ -81,8 +93,9 @@ class TicTacToeService(private val client: HttpClient) {
 
 
     suspend fun getAvailableGames() {
-        println("isWebSocketActive?: ${webSocketSession!!.isActive}")
-        println("---Getting available games: clientId: ${gameState.value.clientId}")
+        _gameState.update {
+            it.copy(isGetAvailableGamesLoading = true)
+        }
         try {
             val message = Json.encodeToString(
                 GetAvailableGamesPayload.serializer(),
@@ -96,14 +109,31 @@ class TicTacToeService(private val client: HttpClient) {
         } catch (e: Exception) {
             throw Error(e)
         }
+    }
 
-
+    suspend fun joinGame(gameId: String) {
+        _gameState.update {
+            it.copy(isGetAvailableGamesLoading = true)
+        }
+        try {
+            val message = Json.encodeToString(
+                JoinGamePayload.serializer(),
+                JoinGamePayload(
+                    action = ActionRequest.JOIN_GAME,
+                    clientId = gameState.value.clientId!!,
+                    gameId = gameId
+                )
+            )
+            println(message)
+            sendMessage(message)
+        } catch (e: Exception) {
+            throw Error(e)
+        }
     }
 
     // Send message to WebSocket
     private suspend fun sendMessage(message: String) {
         webSocketSession?.send(Frame.Text(message))
-
     }
 
 

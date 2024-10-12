@@ -12,15 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Primary,
-    secondary = Secondary,
-    tertiary = Tertiary
+    primary = TicTacToeColors.Light.Primary,
+    secondary = TicTacToeColors.Light.Secondary,
+    tertiary = TicTacToeColors.Light.Tertiary
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Primary,
-    secondary = Secondary,
-    tertiary = Tertiary
+    primary = TicTacToeColors.Dark.Primary,
+    secondary = TicTacToeColors.Dark.Secondary,
+    tertiary = TicTacToeColors.Dark.Tertiary
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
