@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -20,7 +19,6 @@ class PlayViewModel(
     private val navHostController: NavHostController,
     private val ticTacToeService: TicTacToeService,
     val gameState: StateFlow<GameState>,
-    val snackBarEvent: MutableSharedFlow<String>,
 ) : ViewModel() {
     private val _state = MutableStateFlow<ConfettiState>(ConfettiState.Idle)
     val state: MutableStateFlow<ConfettiState> = _state
@@ -33,8 +31,8 @@ class PlayViewModel(
                     startConfetti()
                 }
                 if (it.isGameStarted && it.isOpponentQuitGame) {
-                    snackBarEvent.emit("${it.opponent.opponentName} quit game")
                     navHostController.popBackStack()
+                    ticTacToeService.resetGameState()
                 }
             }
         }

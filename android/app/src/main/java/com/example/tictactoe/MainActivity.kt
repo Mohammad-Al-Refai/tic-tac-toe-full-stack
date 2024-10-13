@@ -45,19 +45,34 @@ fun Game() {
     val gameState = ticTacToeService.gameState
     val state = gameState.collectAsState()
     val job = Job()
-    val scope = CoroutineScope(job)
+    val connectionScope = CoroutineScope(job)
+    val messagesScope = CoroutineScope(job)
     LaunchedEffect(Unit) {
-        scope.launch {
+        messagesScope.launch {
+            gameState.collect {
+                if (it.error != null) {
+                    snackBarEvent.emit(it.error!!)
+                    ticTacToeService.resetError()
+                }
+                if (it.isGameStarted && it.isOpponentQuitGame) {
+                    snackBarEvent.emit("${it.opponent.opponentName} quit game")
+                }
+            }
+        }
+        connectionScope.launch {
             ticTacToeService.connect()
         }
+
         snackBarEvent.collectLatest { message ->
-            snackBarEvent.emit(message)
+            snackBarScope.launch {
+                snackBarHostState.showSnackbar(message)
+            }
         }
     }
 
     if (!state.value.isConnected || state.value.isConnectionError) {
         LoadingPage(gameState) {
-            scope.launch {
+            connectionScope.launch {
                 ticTacToeService.connect()
             }
         }

@@ -277,6 +277,12 @@ class TicTacToeService(
         return CellState.NONE
     }
 
+    fun resetError()  {
+        _gameState.update {
+            it.copy(error = null)
+        }
+    }
+
     fun resetGameState() {
         println("-----RESET_GAME_STATE")
         _gameState.update {

@@ -29,6 +29,6 @@ val appModule =
             LandingViewModel(navController, get(), gameState)
         }
         viewModel { (navController: NavHostController, ticTacToeService: TicTacToeService, gameState: StateFlow<GameState>) ->
-            PlayViewModel(navController, get(), gameState, get())
+            PlayViewModel(navController, get(), gameState)
         }
     }
