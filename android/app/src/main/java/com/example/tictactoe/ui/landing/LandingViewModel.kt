@@ -7,46 +7,42 @@ import com.example.tictactoe.models.Game
 import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LandingViewModel(
-    private val navHostController: NavHostController,
+    val navHostController: NavHostController,
     private val ticTacToeService: TicTacToeService,
     val gameState: StateFlow<GameState>,
+    val snackBarEvent: MutableSharedFlow<String>,
 ) : ViewModel() {
-    private val _snackbarEvent = MutableSharedFlow<String>()
-    val snackbarEvent: SharedFlow<String> get() = _snackbarEvent
+    var availableGamesJob: Job? = null
 
     init {
         ticTacToeService.resetGameState()
         viewModelScope.launch {
-            if (!gameState.value.isJoinedGame) {
-                getAvailableGamesEvery5Seconds()
-            }
+            startGetAvailableGames()
             gameState.collect {
                 if (it.isJoinedGame && !it.isGameStarted) {
+                    stopGetAvailableGames()
                     navigateToPlay()
                 }
                 if (it.error != null) {
                     println("------ERROR: ${it.error}")
-                    _snackbarEvent.emit(it.error!!)
+                    snackBarEvent.emit(it.error!!)
+                    gameState.value.error = null
                 }
             }
         }
     }
 
-    private fun navigateToPlay() {
-        navHostController.navigate(Routes.Play.name)
-    }
-
     fun joinGame(game: Game) {
         if (game.id.isNullOrEmpty()) {
             viewModelScope.launch {
-                _snackbarEvent.emit("Game id is unavailable")
+                snackBarEvent.emit("Game id is unavailable")
             }
             return
         }
@@ -55,13 +51,22 @@ class LandingViewModel(
         }
     }
 
-    private suspend fun getAvailableGamesEvery5Seconds() {
-        viewModelScope.launch {
-            while (true) {
-                println("----Calling getAvailableGames")
-                ticTacToeService.getAvailableGames()
-                delay(5000L)
+    private fun navigateToPlay() {
+        navHostController.navigate(Routes.Play.name)
+    }
+
+    fun startGetAvailableGames() {
+        if (availableGamesJob?.isActive == true) return
+        availableGamesJob =
+            viewModelScope.launch {
+                while (true) {
+                    ticTacToeService.getAvailableGames()
+                    delay(5000L)
+                }
             }
-        }
+    }
+
+    fun stopGetAvailableGames() {
+        availableGamesJob?.cancel()
     }
 }

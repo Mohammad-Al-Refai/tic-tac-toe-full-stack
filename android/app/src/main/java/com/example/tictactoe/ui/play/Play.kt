@@ -13,22 +13,35 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.tictactoe.ui.components.CustomToolBar
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.compose.OnParticleSystemUpdateListener
 import nl.dionsegijn.konfetti.core.PartySystem
 
 @Composable
-fun Play(vm: PlayViewModel) {
-    val gameState = vm.gameState.collectAsState()
+fun Play(
+    vm: PlayViewModel,
+    snackbarHostState: SnackbarHostState,
+) {
+    val state = vm.gameState.collectAsState()
     val animationState = vm.state.collectAsState()
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        topBar = {
+            CustomToolBar(state.value.clientName)
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
+    ) { innerPadding ->
         Column(
             modifier =
                 Modifier
@@ -63,15 +76,15 @@ fun Play(vm: PlayViewModel) {
                         modifier = Modifier.size(50.dp),
                         tint = MaterialTheme.colorScheme.tertiary,
                     )
-                    Text(gameState.value.opponent.opponentName)
+                    Text(state.value.opponent.opponentName)
                 }
             }
-            if (!gameState.value.isGameFinished) {
-                Text(vm.getTurnText(gameState.value))
+            if (!state.value.isGameFinished) {
+                Text(vm.getTurnText(state.value))
             } else {
-                Text(vm.getGameStatusText(gameState.value))
+                Text(vm.getGameStatusText(state.value))
             }
-            Board(gameState.value.board, gameState.value.myCellState, onCellClick = vm::onCellClick)
+            Board(state.value.board, state.value.myCellState, onCellClick = vm::onCellClick)
             Column {
                 Button(onClick = vm::quitGame) {
                     Text("Quit game")

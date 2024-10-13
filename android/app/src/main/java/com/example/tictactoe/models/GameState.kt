@@ -11,6 +11,7 @@ data class GameState(
     var isLoseCurrentGame: Boolean = false,
     var isGameFinished: Boolean = false,
     var isOpponentQuitGame: Boolean = false,
+    var isJoiningGame: Boolean = false,
     var availableGames: List<Game> = emptyList(),
     var clientId: String? = null,
     var error: String? = null,

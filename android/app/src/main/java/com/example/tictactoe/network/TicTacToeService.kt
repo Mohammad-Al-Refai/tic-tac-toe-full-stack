@@ -52,7 +52,7 @@ class TicTacToeService(
                     .filterIsInstance<Frame.Text>()
                     .mapNotNull { Json.decodeFromString<GameResponse>(it.readText()) }
                     .collect { response ->
-                        println("---Response: $response")
+//                        println("---Response: $response")
                         when (response.action) {
                             ActionResponse.CONNECTED -> {
                                 _gameState.update {
@@ -86,6 +86,7 @@ class TicTacToeService(
                                 _gameState.update {
                                     it.copy(
                                         isJoinedGame = true,
+                                        isJoiningGame = false,
                                         gameId = response.game!!.id,
                                         board = response.game!!.board,
                                         opponent = getOpponent(response.game!!),
@@ -128,7 +129,7 @@ class TicTacToeService(
                     }
             }
         } catch (e: Exception) {
-            println("Error: ${e.message}")
+            handleDisconnection()
         }
     }
 
@@ -145,7 +146,7 @@ class TicTacToeService(
                         clientId = gameState.value.clientId!!,
                     ),
                 )
-            println(message)
+            println("Call getAvailableGames")
             sendMessage(message)
         } catch (e: Exception) {
             throw Error(e)
@@ -154,7 +155,7 @@ class TicTacToeService(
 
     suspend fun joinGame(gameId: String) {
         _gameState.update {
-            it.copy(isGetAvailableGamesLoading = true)
+            it.copy(isJoiningGame = true)
         }
         try {
             val message =
@@ -224,6 +225,10 @@ class TicTacToeService(
         webSocketSession?.close()
         webSocketSession = null
         println("WebSocket disconnected!")
+    }
+
+    private suspend fun handleDisconnection() {
+        _gameState.emit(GameState())
     }
 
     private fun getOpponent(game: Game): Opponent {
