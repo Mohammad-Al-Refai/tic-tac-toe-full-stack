@@ -9,7 +9,6 @@ import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -17,9 +16,9 @@ class LandingViewModel(
     val navHostController: NavHostController,
     private val ticTacToeService: TicTacToeService,
     val gameState: StateFlow<GameState>,
-    val snackBarEvent: MutableSharedFlow<String>,
 ) : ViewModel() {
-    var availableGamesJob: Job? = null
+    private var availableGamesJob: Job? = null
+    private val GET_AVAILABLE_GAMES_DELAY = 5000L
 
     init {
         ticTacToeService.resetGameState()
@@ -30,24 +29,16 @@ class LandingViewModel(
                     stopGetAvailableGames()
                     navigateToPlay()
                 }
-                if (it.error != null) {
-                    println("------ERROR: ${it.error}")
-                    snackBarEvent.emit(it.error!!)
-                    gameState.value.error = null
+                if (it.isConnectionError) {
+                    stopGetAvailableGames()
                 }
             }
         }
     }
 
     fun joinGame(game: Game) {
-        if (game.id.isNullOrEmpty()) {
-            viewModelScope.launch {
-                snackBarEvent.emit("Game id is unavailable")
-            }
-            return
-        }
         viewModelScope.launch {
-            ticTacToeService.joinGame(game.id)
+            ticTacToeService.joinGame(game.id!!)
         }
     }
 
@@ -61,7 +52,7 @@ class LandingViewModel(
             viewModelScope.launch {
                 while (true) {
                     ticTacToeService.getAvailableGames()
-                    delay(5000L)
+                    delay(GET_AVAILABLE_GAMES_DELAY)
                 }
             }
     }

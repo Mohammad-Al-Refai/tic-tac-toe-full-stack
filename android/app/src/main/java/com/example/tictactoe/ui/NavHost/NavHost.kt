@@ -13,8 +13,6 @@ import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
 import com.example.tictactoe.ui.landing.Landing
 import com.example.tictactoe.ui.landing.LandingViewModel
-import com.example.tictactoe.ui.loading.LoadingPage
-import com.example.tictactoe.ui.loading.LoadingViewModel
 import com.example.tictactoe.ui.play.Play
 import com.example.tictactoe.ui.play.PlayViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,17 +30,7 @@ fun NavGraph(
     snackbarEvent: MutableSharedFlow<String>,
     snackbarHostState: SnackbarHostState,
 ) {
-    NavHost(navController = navController, startDestination = Routes.Loading.name) {
-        composable(Routes.Loading.name) {
-            val loadingViewModel: LoadingViewModel =
-                koinViewModel {
-                    parametersOf(
-                        navController,
-                        gameState,
-                    )
-                }
-            LoadingPage(loadingViewModel)
-        }
+    NavHost(navController = navController, startDestination = Routes.Landing.name) {
         composable(Routes.Landing.name) {
             val landingViewModel: LandingViewModel =
                 koinViewModel {
@@ -50,8 +38,6 @@ fun NavGraph(
                         navController,
                         ticTacToeService,
                         gameState,
-                        snackbarEvent,
-                        snackbarHostState,
                     )
                 }
             Landing(landingViewModel, snackbarHostState)

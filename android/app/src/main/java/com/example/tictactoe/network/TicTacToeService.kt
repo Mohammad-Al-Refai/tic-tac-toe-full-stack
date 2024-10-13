@@ -17,6 +17,9 @@ import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -24,6 +27,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 class TicTacToeService(
@@ -32,6 +36,8 @@ class TicTacToeService(
     private var webSocketSession: DefaultClientWebSocketSession? = null
     private val _gameState = MutableStateFlow(GameState())
     val gameState = _gameState.asStateFlow()
+    val job = Job()
+    val scope = CoroutineScope(job)
 
     suspend fun connect() {
         _gameState.update {
@@ -46,13 +52,16 @@ class TicTacToeService(
             client.webSocket("wss://roasted-nani-mohammad-al-refaai-de14128b.koyeb.app/ws") {
                 webSocketSession = this
                 println("---Connected: ${webSocketSession?.isActive}")
+                scope.launch {
+                    checkConnection()
+                }
                 webSocketSession!!
                     .incoming
                     .consumeAsFlow()
                     .filterIsInstance<Frame.Text>()
                     .mapNotNull { Json.decodeFromString<GameResponse>(it.readText()) }
                     .collect { response ->
-//                        println("---Response: $response")
+                        println("---Response: $response")
                         when (response.action) {
                             ActionResponse.CONNECTED -> {
                                 _gameState.update {
@@ -133,6 +142,18 @@ class TicTacToeService(
         }
     }
 
+    private suspend fun checkConnection() {
+        while (true) {
+            if (webSocketSession != null) {
+                if (!webSocketSession!!.isActive) {
+                    handleDisconnection()
+                    break
+                }
+            }
+            delay(1000L)
+        }
+    }
+
     suspend fun getAvailableGames() {
         _gameState.update {
             it.copy(isGetAvailableGamesLoading = true)
@@ -149,7 +170,7 @@ class TicTacToeService(
             println("Call getAvailableGames")
             sendMessage(message)
         } catch (e: Exception) {
-            throw Error(e)
+            handleDisconnection()
         }
     }
 
@@ -170,7 +191,7 @@ class TicTacToeService(
             println(message)
             sendMessage(message)
         } catch (e: Exception) {
-            throw Error(e)
+            handleDisconnection()
         }
     }
 
@@ -193,7 +214,7 @@ class TicTacToeService(
             println(message)
             sendMessage(message)
         } catch (e: Exception) {
-            throw Error(e)
+            handleDisconnection()
         }
     }
 
@@ -211,7 +232,7 @@ class TicTacToeService(
             println(message)
             sendMessage(message)
         } catch (e: Exception) {
-            throw Error(e)
+            handleDisconnection()
         }
     }
 
@@ -228,7 +249,8 @@ class TicTacToeService(
     }
 
     private suspend fun handleDisconnection() {
-        _gameState.emit(GameState())
+        println("DISCONNECTED")
+        _gameState.emit(GameState(isConnectionError = true, isConnected = false))
     }
 
     private fun getOpponent(game: Game): Opponent {

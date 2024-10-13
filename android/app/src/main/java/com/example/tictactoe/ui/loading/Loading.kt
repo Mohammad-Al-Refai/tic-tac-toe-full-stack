@@ -12,11 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.tictactoe.models.GameState
+import kotlinx.coroutines.flow.StateFlow
 
-@Suppress("ktlint:standard:function-naming")
 @Composable
-fun LoadingPage(viewModel: LoadingViewModel) {
-    val state = viewModel.gameState.collectAsState()
+fun LoadingPage(
+    gameState: StateFlow<GameState>,
+    connect: () -> Unit,
+) {
+    val state = gameState.collectAsState()
     Scaffold { innerPadding ->
         Column(
             modifier =
@@ -32,12 +36,9 @@ fun LoadingPage(viewModel: LoadingViewModel) {
             }
             if (state.value.isConnectionError) {
                 Text(text = "Field to connect to server")
-                Button(onClick = { viewModel.connect() }) {
+                Button(onClick = connect) {
                     Text(text = "Try again")
                 }
-            }
-            if (!state.value.isConnectionError && !state.value.isLoading) {
-                Text(text = "Should navigate now")
             }
         }
     }
