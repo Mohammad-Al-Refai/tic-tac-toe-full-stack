@@ -9,24 +9,22 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.tictactoe.models.Game
-import com.example.tictactoe.models.GameState
 
-
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun LoadingPage(viewModel: LoadingViewModel) {
     val state = viewModel.gameState.collectAsState()
     Scaffold { innerPadding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             if (state.value.isLoading) {
                 CircularProgressIndicator()
@@ -40,9 +38,7 @@ fun LoadingPage(viewModel: LoadingViewModel) {
             }
             if (!state.value.isConnectionError && !state.value.isLoading) {
                 Text(text = "Should navigate now")
-
             }
         }
     }
-
 }

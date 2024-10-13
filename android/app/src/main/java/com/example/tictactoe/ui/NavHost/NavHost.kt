@@ -1,5 +1,6 @@
 package com.example.tictactoe.ui.NavHost
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -21,7 +22,7 @@ import org.koin.core.parameter.parametersOf
 fun NavGraph(
     navController: NavHostController,
     gameState: StateFlow<GameState>,
-    ticTacToeService: TicTacToeService
+    ticTacToeService: TicTacToeService,
 ) {
     NavHost(navController = navController, startDestination = Routes.Loading.name) {
         composable(Routes.Loading.name) {
@@ -29,7 +30,7 @@ fun NavGraph(
                 koinViewModel {
                     parametersOf(
                         navController,
-                        gameState
+                        gameState,
                     )
                 }
             LoadingPage(loadingViewModel)
@@ -40,7 +41,7 @@ fun NavGraph(
                     parametersOf(
                         navController,
                         ticTacToeService,
-                        gameState
+                        gameState,
                     )
                 }
             Landing(landingViewModel)
@@ -51,10 +52,13 @@ fun NavGraph(
                     parametersOf(
                         navController,
                         ticTacToeService,
-                        gameState
+                        gameState,
                     )
                 }
             Play(playViewModel)
+            BackHandler(true) {
+                // do nothing
+            }
         }
     }
 }

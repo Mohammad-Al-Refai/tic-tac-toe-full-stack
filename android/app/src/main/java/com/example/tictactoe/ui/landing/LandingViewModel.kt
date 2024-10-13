@@ -1,46 +1,38 @@
 package com.example.tictactoe.ui.landing
 
-import androidx.compose.material3.Snackbar
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.tictactoe.models.Game
-import com.example.tictactoe.models.GameResponse
 import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class LandingViewModel(
     private val navHostController: NavHostController,
     private val ticTacToeService: TicTacToeService,
-    val gameState: StateFlow<GameState>
+    val gameState: StateFlow<GameState>,
 ) : ViewModel() {
     private val _snackbarEvent = MutableSharedFlow<String>()
     val snackbarEvent: SharedFlow<String> get() = _snackbarEvent
 
     init {
+        ticTacToeService.resetGameState()
         viewModelScope.launch {
-            getAvailableGamesEvery5Seconds()
+            if (!gameState.value.isJoinedGame) {
+                getAvailableGamesEvery5Seconds()
+            }
             gameState.collect {
-                if (it.isGameReady) {
+                if (it.isJoinedGame && !it.isGameStarted) {
                     navigateToPlay()
-                    viewModelScope.cancel()
                 }
                 if (it.error != null) {
+                    println("------ERROR: ${it.error}")
                     _snackbarEvent.emit(it.error!!)
                 }
             }
@@ -71,6 +63,5 @@ class LandingViewModel(
                 delay(5000L)
             }
         }
-
     }
 }

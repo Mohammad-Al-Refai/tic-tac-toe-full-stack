@@ -7,9 +7,10 @@ import com.example.tictactoe.models.Game
 import com.example.tictactoe.models.GameResponse
 import com.example.tictactoe.models.GameState
 import com.example.tictactoe.models.Opponent
-import com.example.tictactoe.network.Actions.GetAvailableGamesPayload
-import com.example.tictactoe.network.Actions.JoinGamePayload
-import com.example.tictactoe.network.Actions.UpdateGamePayload
+import com.example.tictactoe.network.actions.GetAvailableGamesPayload
+import com.example.tictactoe.network.actions.JoinGamePayload
+import com.example.tictactoe.network.actions.QuitGamePayload
+import com.example.tictactoe.network.actions.UpdateGamePayload
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocket
@@ -25,25 +26,29 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.Json
 
-
-class TicTacToeService(private val client: HttpClient) {
+class TicTacToeService(
+    private val client: HttpClient,
+) {
     private var webSocketSession: DefaultClientWebSocketSession? = null
     private val _gameState = MutableStateFlow(GameState())
     val gameState = _gameState.asStateFlow()
+
     suspend fun connect() {
         _gameState.update {
             it.copy(
                 isConnected = false,
                 isConnectionError = false,
                 isLoading = true,
-                isGetAvailableGamesLoading = false
+                isGetAvailableGamesLoading = false,
             )
         }
         try {
             client.webSocket("wss://roasted-nani-mohammad-al-refaai-de14128b.koyeb.app/ws") {
                 webSocketSession = this
                 println("---Connected: ${webSocketSession?.isActive}")
-                webSocketSession!!.incoming.consumeAsFlow()
+                webSocketSession!!
+                    .incoming
+                    .consumeAsFlow()
                     .filterIsInstance<Frame.Text>()
                     .mapNotNull { Json.decodeFromString<GameResponse>(it.readText()) }
                     .collect { response ->
@@ -55,32 +60,36 @@ class TicTacToeService(private val client: HttpClient) {
                                         clientId = response.clientId,
                                         isConnected = true,
                                         isLoading = false,
-                                        clientName = response.name!!
+                                        clientName = response.name!!,
                                     )
                                 }
-
                             }
 
                             ActionResponse.AVAILABLE_GAMES -> {
                                 _gameState.update {
                                     it.copy(
                                         availableGames = response.games.orEmpty(),
-                                        isGetAvailableGamesLoading = false
+                                        isGetAvailableGamesLoading = false,
                                     )
                                 }
                             }
 
                             ActionResponse.NONE -> TODO()
-                            ActionResponse.ERROR -> TODO()
+                            ActionResponse.ERROR -> {
+                                _gameState.update {
+                                    it.copy(error = response.errorMessage)
+                                }
+                            }
+
                             ActionResponse.GAME_CREATED -> TODO()
                             ActionResponse.JOINED_GAME -> {
                                 _gameState.update {
                                     it.copy(
-                                        isGameReady = true,
+                                        isJoinedGame = true,
                                         gameId = response.game!!.id,
                                         board = response.game!!.board,
                                         opponent = getOpponent(response.game!!),
-                                        myCellState = getMyCellState(response.game!!)
+                                        myCellState = getMyCellState(response.game!!),
                                     )
                                 }
                             }
@@ -91,13 +100,29 @@ class TicTacToeService(private val client: HttpClient) {
                                     it.copy(
                                         playIdTurn = response.playerIdTurn,
                                         turn = response.turn,
-                                        board = response.board
+                                        board = response.board,
                                     )
                                 }
                             }
 
-                            ActionResponse.PLAYER_QUIT -> TODO()
-                            ActionResponse.WIN -> TODO()
+                            ActionResponse.PLAYER_QUIT -> {
+                                _gameState.update {
+                                    it.copy(
+                                        isOpponentQuitGame = true,
+                                    )
+                                }
+                            }
+
+                            ActionResponse.WIN -> {
+                                _gameState.update {
+                                    it.copy(
+                                        isGameFinished = true,
+                                        isWinCurrentGame = response.winner == it.myCellState,
+                                        isLoseCurrentGame = response.winner != it.myCellState,
+                                    )
+                                }
+                            }
+
                             ActionResponse.DRAW -> TODO()
                         }
                     }
@@ -107,19 +132,19 @@ class TicTacToeService(private val client: HttpClient) {
         }
     }
 
-
     suspend fun getAvailableGames() {
         _gameState.update {
             it.copy(isGetAvailableGamesLoading = true)
         }
         try {
-            val message = Json.encodeToString(
-                GetAvailableGamesPayload.serializer(),
-                GetAvailableGamesPayload(
-                    action = ActionRequest.GET_AVAILABLE_GAMES,
-                    clientId = gameState.value.clientId!!
+            val message =
+                Json.encodeToString(
+                    GetAvailableGamesPayload.serializer(),
+                    GetAvailableGamesPayload(
+                        action = ActionRequest.GET_AVAILABLE_GAMES,
+                        clientId = gameState.value.clientId!!,
+                    ),
                 )
-            )
             println(message)
             sendMessage(message)
         } catch (e: Exception) {
@@ -132,14 +157,15 @@ class TicTacToeService(private val client: HttpClient) {
             it.copy(isGetAvailableGamesLoading = true)
         }
         try {
-            val message = Json.encodeToString(
-                JoinGamePayload.serializer(),
-                JoinGamePayload(
-                    action = ActionRequest.JOIN_GAME,
-                    clientId = gameState.value.clientId!!,
-                    gameId = gameId
+            val message =
+                Json.encodeToString(
+                    JoinGamePayload.serializer(),
+                    JoinGamePayload(
+                        action = ActionRequest.JOIN_GAME,
+                        clientId = gameState.value.clientId!!,
+                        gameId = gameId,
+                    ),
                 )
-            )
             println(message)
             sendMessage(message)
         } catch (e: Exception) {
@@ -147,18 +173,40 @@ class TicTacToeService(private val client: HttpClient) {
         }
     }
 
-    suspend fun updateGame(row: Int, col: Int) {
+    suspend fun updateGame(
+        row: Int,
+        col: Int,
+    ) {
         try {
-            val message = Json.encodeToString(
-                UpdateGamePayload.serializer(),
-                UpdateGamePayload(
-                    action = ActionRequest.UPDATE_GAME,
-                    clientId = gameState.value.clientId!!,
-                    gameId = gameState.value.gameId!!,
-                    row = row,
-                    column = col
+            val message =
+                Json.encodeToString(
+                    UpdateGamePayload.serializer(),
+                    UpdateGamePayload(
+                        action = ActionRequest.UPDATE_GAME,
+                        clientId = gameState.value.clientId!!,
+                        gameId = gameState.value.gameId!!,
+                        row = row,
+                        column = col,
+                    ),
                 )
-            )
+            println(message)
+            sendMessage(message)
+        } catch (e: Exception) {
+            throw Error(e)
+        }
+    }
+
+    suspend fun quitGame() {
+        try {
+            val message =
+                Json.encodeToString(
+                    QuitGamePayload.serializer(),
+                    QuitGamePayload(
+                        action = ActionRequest.QUIT_GAME,
+                        clientId = gameState.value.clientId!!,
+                        gameId = gameState.value.gameId!!,
+                    ),
+                )
             println(message)
             sendMessage(message)
         } catch (e: Exception) {
@@ -170,7 +218,6 @@ class TicTacToeService(private val client: HttpClient) {
     private suspend fun sendMessage(message: String) {
         webSocketSession?.send(Frame.Text(message))
     }
-
 
     // Close WebSocket connection
     suspend fun close() {
@@ -201,5 +248,26 @@ class TicTacToeService(private val client: HttpClient) {
             return CellState.O
         }
         return CellState.NONE
+    }
+
+    fun resetGameState() {
+        println("-----RESET_GAME_STATE")
+        _gameState.update {
+            it.copy(
+                isLoseCurrentGame = false,
+                isOpponentQuitGame = false,
+                isGameFinished = false,
+                isJoinedGame = false,
+                isGameStarted = false,
+                isWinCurrentGame = false,
+                opponent = Opponent("", ""),
+                myCellState = CellState.NONE,
+                error = null,
+                gameId = null,
+                playIdTurn = null,
+                turn = null,
+                board = emptyArray(),
+            )
+        }
     }
 }

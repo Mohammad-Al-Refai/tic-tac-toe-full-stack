@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 enum class CellState {
     NONE,
     X,
-    O
+    O,
 }

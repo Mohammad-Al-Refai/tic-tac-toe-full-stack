@@ -9,13 +9,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-
 class LoadingViewModel(
     private val navHostController: NavHostController,
     val gameState: StateFlow<GameState>,
 ) : ViewModel() {
-
-
     init {
         viewModelScope.launch {
             gameState.collect {

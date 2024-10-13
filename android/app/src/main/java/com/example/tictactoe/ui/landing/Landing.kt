@@ -4,10 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,13 +32,13 @@ import com.example.tictactoe.models.Game
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Landing(viewModel: LandingViewModel) {
     val state = viewModel.gameState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         viewModel.snackbarEvent.collectLatest { message ->
             scope.launch {
@@ -50,47 +50,64 @@ fun Landing(viewModel: LandingViewModel) {
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,
-                modifier = Modifier.background(MaterialTheme.colorScheme.error)
+                modifier = Modifier.background(MaterialTheme.colorScheme.error),
             )
         },
         topBar = {
             TopAppBar(title = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Row {
                         Text(text = "Tic", color = MaterialTheme.colorScheme.primary)
                         Text(text = "Tac", color = MaterialTheme.colorScheme.secondary)
                         Text(text = "Toe", color = MaterialTheme.colorScheme.tertiary)
                     }
-                    Text(fontSize = 13.sp,text=state.value.clientName)
-
+                    Text(
+                        fontSize = 13.sp,
+                        text = state.value.clientName,
+                        modifier = Modifier.padding(end = 10.dp),
+                    )
                 }
             })
-        }) { innerPadding ->
+        },
+    ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             AvailableGamesList(
                 state.value.availableGames,
                 onJoinClick = { viewModel.joinGame(it) },
-                state.value.isGetAvailableGamesLoading
+                state.value.isGetAvailableGamesLoading,
             )
         }
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
-fun AvailableGamesList(games: List<Game>, onJoinClick: (Game) -> Unit, isLoading: Boolean) {
-
+fun AvailableGamesList(
+    games: List<Game>,
+    onJoinClick: (Game) -> Unit,
+    isLoading: Boolean,
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (isLoading) {
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
                 Text("Updating")
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    strokeWidth = 1.dp,
+                    modifier =
+                        Modifier
+                            .size(20.dp)
+                            .padding(start = 5.dp),
+                )
             }
         }
         if (games.isEmpty()) {
@@ -111,5 +128,4 @@ fun AvailableGamesList(games: List<Game>, onJoinClick: (Game) -> Unit, isLoading
             }
         }
     }
-
 }

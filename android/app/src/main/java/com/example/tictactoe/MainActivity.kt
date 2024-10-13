@@ -26,17 +26,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TicTacToeTheme {
-                Main(gameState, ticTacToeService)
+                Game(gameState, ticTacToeService)
             }
         }
     }
 }
 
 @Composable
-fun Main(gameState: StateFlow<GameState>, ticTacToeService: TicTacToeService) {
+fun Game(
+    gameState: StateFlow<GameState>,
+    ticTacToeService: TicTacToeService,
+) {
     val navController = rememberNavController()
     NavGraph(navController = navController, gameState, ticTacToeService)
 }
-
-
-

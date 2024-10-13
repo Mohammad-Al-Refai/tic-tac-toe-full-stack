@@ -1,9 +1,8 @@
-package com.example.tictactoe.network.Actions
+package com.example.tictactoe.network.actions
 
 import com.example.tictactoe.models.ActionRequest
 import kotlinx.serialization.Serializable
 import java.util.UUID
-
 
 @Serializable
 data class UpdateGamePayload(

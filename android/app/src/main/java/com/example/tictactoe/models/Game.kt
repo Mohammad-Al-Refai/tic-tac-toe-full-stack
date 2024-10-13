@@ -2,7 +2,6 @@ package com.example.tictactoe.models
 
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 data class Game(
     val id: String? = null,
