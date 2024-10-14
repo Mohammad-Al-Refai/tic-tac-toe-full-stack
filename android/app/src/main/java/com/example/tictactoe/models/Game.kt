@@ -2,7 +2,6 @@ package com.example.tictactoe.models
 
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 data class Game(
     val id: String? = null,
@@ -17,7 +16,7 @@ data class Game(
     var isPrivate: Boolean = false,
     var currentCellType: CellState = CellState.NONE,
     var name: String = "",
-    var board: Array<Array<String>> = arrayOf(),
+    var board: Array<Array<CellState>> = arrayOf(),
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

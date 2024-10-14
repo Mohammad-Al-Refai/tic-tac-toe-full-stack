@@ -10,4 +10,3 @@ enum class ActionRequest {
     GET_AVAILABLE_GAMES,
     QUIT_GAME,
 }
-

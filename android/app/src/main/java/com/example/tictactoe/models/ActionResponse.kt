@@ -11,5 +11,5 @@ enum class ActionResponse {
     PLAYER_QUIT,
     AVAILABLE_GAMES,
     WIN,
-    DRAW
+    DRAW,
 }
