@@ -1,6 +1,6 @@
 val ktor_version = "3.0.0"
 val nav_version = "2.8.2"
-val vm_version = "2.6.1"
+val vm_version = "2.8.6"
 val coroutines_version = "1.3.9"
 val koin_android_version = "4.0.0"
 plugins {
