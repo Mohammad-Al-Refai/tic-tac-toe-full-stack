@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 data class GameResponse(
     val action: ActionResponse = ActionResponse.NONE,
     val requestId: String? = null,
-    val game: Game? = null,
     val games: List<Game>? = null,
     var errorMessage: String? = null,
     var playerId: String? = null,
@@ -15,6 +14,8 @@ data class GameResponse(
     var name: String? = null,
     var gameId: String? = null,
     var playerIdTurn: String? = null,
-    val turn: CellState? = null,
     var winner: CellState? = null,
+    var turn: CellState = CellState.NONE,
+    var game: Game? = null,
+    var board: Array<Array<CellState>> = arrayOf(),
 )
