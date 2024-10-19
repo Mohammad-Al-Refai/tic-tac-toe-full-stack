@@ -1,8 +1,3 @@
-val ktor_version = "3.0.0"
-val nav_version = "2.8.2"
-val vm_version = "2.6.1"
-val coroutines_version = "1.3.9"
-val koin_android_version = "4.0.0"
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -67,16 +62,21 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("io.insert-koin:koin-android:$koin_android_version")
-    implementation("io.insert-koin:koin-core:$koin_android_version")
-    implementation("io.insert-koin:koin-androidx-compose:$koin_android_version")
-    implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$vm_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("nl.dionsegijn:konfetti-compose:2.0.4")
+
+    // Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    // Koin
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    // DTO Serialization
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.coroutines.android)
+    implementation(libs.konfetti.compose)
+    implementation(libs.navigation.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
