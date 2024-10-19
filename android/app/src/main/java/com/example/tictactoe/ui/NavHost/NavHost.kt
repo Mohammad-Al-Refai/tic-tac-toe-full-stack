@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.tictactoe.models.GameState
+import com.example.tictactoe.models.AppState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
 import com.example.tictactoe.ui.landing.Landing
@@ -25,7 +25,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    gameState: StateFlow<GameState>,
+    appState: StateFlow<AppState>,
     ticTacToeService: TicTacToeService,
     snackbarEvent: MutableSharedFlow<String>,
     snackbarHostState: SnackbarHostState,
@@ -37,7 +37,7 @@ fun NavGraph(
                     parametersOf(
                         navController,
                         ticTacToeService,
-                        gameState,
+                        appState,
                     )
                 }
             Landing(landingViewModel, snackbarHostState)
@@ -48,7 +48,7 @@ fun NavGraph(
                     parametersOf(
                         navController,
                         ticTacToeService,
-                        gameState,
+                        appState,
                         snackbarEvent,
                         snackbarHostState,
                     )

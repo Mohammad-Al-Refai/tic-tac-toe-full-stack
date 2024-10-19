@@ -3,7 +3,7 @@ package com.example.tictactoe.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class GameResponse(
+data class ServiceResponse(
     val action: ActionResponse = ActionResponse.NONE,
     val requestId: String? = null,
     val games: List<Game>? = null,

@@ -3,8 +3,9 @@ package com.example.tictactoe.ui.play
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.example.tictactoe.models.GameState
+import com.example.tictactoe.models.AppState
 import com.example.tictactoe.network.TicTacToeService
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -18,21 +19,24 @@ import java.util.concurrent.TimeUnit
 class PlayViewModel(
     private val navHostController: NavHostController,
     private val ticTacToeService: TicTacToeService,
-    val gameState: StateFlow<GameState>,
+    val appState: StateFlow<AppState>,
+    private val snackBarEvent: MutableSharedFlow<String>,
 ) : ViewModel() {
     private val _state = MutableStateFlow<ConfettiState>(ConfettiState.Idle)
     val state: MutableStateFlow<ConfettiState> = _state
 
     init {
         viewModelScope.launch {
-            gameState.value.isGameStarted = true
-            gameState.collect {
+            appState.value.isGameStarted = true
+            appState.collect {
                 if (it.isGameFinished && it.isWinCurrentGame) {
                     startConfetti()
                 }
                 if (it.isGameStarted && it.isOpponentQuitGame) {
-                    navHostController.popBackStack()
+                    snackBarEvent.emit("${it.opponent.opponentName} quit game")
+                    ticTacToeService.resetAvailableGames()
                     ticTacToeService.resetGameState()
+                    navHostController.popBackStack()
                 }
             }
         }
@@ -47,15 +51,15 @@ class PlayViewModel(
         }
     }
 
-    fun getTurnText(gameState: GameState): String =
-        if (gameState.playIdTurn == gameState.clientId) {
+    fun getTurnText(appState: AppState): String =
+        if (appState.playIdTurn == appState.clientId) {
             "Your turn"
         } else {
-            "${gameState.opponent.opponentName} turn"
+            "${appState.opponent.opponentName} turn"
         }
 
-    fun getGameStatusText(gameState: GameState): String =
-        if (gameState.isGameFinished && gameState.isWinCurrentGame) {
+    fun getGameStatusText(appState: AppState): String =
+        if (appState.isGameFinished && appState.isWinCurrentGame) {
             "You Win"
         } else {
             "You Lost"

@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.tictactoe.ui.components.CustomToolBar
+import com.example.tictactoe.ui.theme.Typography
 import nl.dionsegijn.konfetti.compose.KonfettiView
 import nl.dionsegijn.konfetti.compose.OnParticleSystemUpdateListener
 import nl.dionsegijn.konfetti.core.PartySystem
@@ -31,7 +32,7 @@ fun Play(
     vm: PlayViewModel,
     snackbarHostState: SnackbarHostState,
 ) {
-    val state = vm.gameState.collectAsState()
+    val state = vm.appState.collectAsState()
     val animationState = vm.state.collectAsState()
 
     Scaffold(
@@ -64,7 +65,7 @@ fun Play(
                         modifier = Modifier.size(50.dp),
                         tint = MaterialTheme.colorScheme.secondary,
                     )
-                    Text("You")
+                    Text("You", style = Typography.bodyLarge)
                 }
                 Column(
                     verticalArrangement = Arrangement.Center,

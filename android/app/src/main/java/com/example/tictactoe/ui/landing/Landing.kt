@@ -25,13 +25,14 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tictactoe.models.Game
 import com.example.tictactoe.ui.components.CustomToolBar
+import com.example.tictactoe.ui.theme.Typography
 
 @Composable
 fun Landing(
     viewModel: LandingViewModel,
     snackbarHostState: SnackbarHostState,
 ) {
-    val state = viewModel.gameState.collectAsState()
+    val state = viewModel.appState.collectAsState()
     val navBackStackEntry = viewModel.navHostController.currentBackStackEntryAsState()
     val lifecycle = navBackStackEntry.value?.lifecycle
 
@@ -96,7 +97,7 @@ fun AvailableGamesList(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
-                Text("Updating")
+                Text("Updating", style = Typography.bodyMedium)
                 CircularProgressIndicator(
                     strokeWidth = 1.dp,
                     modifier =
@@ -107,18 +108,18 @@ fun AvailableGamesList(
             }
         }
         if (games.isEmpty()) {
-            Text("No Games Available")
+            Text("No Games Available", style = Typography.bodyMedium)
         }
         LazyColumn {
             items(games.size) {
                 val game = games[it]
                 ListItem(headlineContent = {
-                    Text(game.name)
+                    Text(game.name, style = Typography.bodyLarge)
                 }, trailingContent = {
                     Button(onClick = {
                         onJoinClick(game)
                     }) {
-                        Text("Join")
+                        Text("Join", style = Typography.bodyLarge)
                     }
                 })
             }
