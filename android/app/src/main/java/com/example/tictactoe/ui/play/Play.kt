@@ -32,7 +32,7 @@ fun Play(
     vm: PlayViewModel,
     snackbarHostState: SnackbarHostState,
 ) {
-    val state = vm.gameState.collectAsState()
+    val state = vm.appState.collectAsState()
     val animationState = vm.state.collectAsState()
 
     Scaffold(

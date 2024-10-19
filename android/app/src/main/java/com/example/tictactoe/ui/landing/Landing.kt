@@ -32,7 +32,7 @@ fun Landing(
     viewModel: LandingViewModel,
     snackbarHostState: SnackbarHostState,
 ) {
-    val state = viewModel.gameState.collectAsState()
+    val state = viewModel.appState.collectAsState()
     val navBackStackEntry = viewModel.navHostController.currentBackStackEntryAsState()
     val lifecycle = navBackStackEntry.value?.lifecycle
 

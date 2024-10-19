@@ -1,7 +1,8 @@
 package com.example.tictactoe.di
 
 import androidx.navigation.NavHostController
-import com.example.tictactoe.models.GameState
+import com.example.tictactoe.AppViewModel
+import com.example.tictactoe.models.AppState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.landing.LandingViewModel
 import com.example.tictactoe.ui.play.PlayViewModel
@@ -23,12 +24,15 @@ val appModule =
 
         viewModel {
                 (
-                    navController: NavHostController, ticTacToeService: TicTacToeService, gameState: StateFlow<GameState>,
+                    navController: NavHostController, ticTacToeService: TicTacToeService, appState: StateFlow<AppState>,
                 ),
             ->
-            LandingViewModel(navController, get(), gameState)
+            LandingViewModel(navController, get(), appState)
         }
-        viewModel { (navController: NavHostController, ticTacToeService: TicTacToeService, gameState: StateFlow<GameState>) ->
-            PlayViewModel(navController, get(), gameState)
+        viewModel { (navController: NavHostController, ticTacToeService: TicTacToeService, appState: StateFlow<AppState>) ->
+            PlayViewModel(navController, get(), appState)
+        }
+        viewModel {
+            AppViewModel(get())
         }
     }

@@ -12,15 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.example.tictactoe.models.GameState
+import com.example.tictactoe.models.AppState
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun LoadingPage(
-    gameState: StateFlow<GameState>,
+    appState: StateFlow<AppState>,
     connect: () -> Unit,
 ) {
-    val state = gameState.collectAsState()
+    val state = appState.collectAsState()
     Scaffold { innerPadding ->
         Column(
             modifier =

@@ -1,6 +1,6 @@
 package com.example.tictactoe.models
 
-data class GameState(
+data class AppState(
     var isConnected: Boolean = false,
     var isLoading: Boolean = false,
     var isGetAvailableGamesLoading: Boolean = false,
