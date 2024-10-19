@@ -1,4 +1,4 @@
-val ktor_version = "2.3.12"
+val ktor_version = "3.0.0"
 val nav_version = "2.8.2"
 val vm_version = "2.6.1"
 val coroutines_version = "1.3.9"
@@ -6,7 +6,7 @@ val koin_android_version = "4.0.0"
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    kotlin("plugin.serialization") version "2.0.20"
+    kotlin("plugin.serialization") version "2.0.21"
 //    alias(libs.plugins.compose.compiler) apply false
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.20"
 }
