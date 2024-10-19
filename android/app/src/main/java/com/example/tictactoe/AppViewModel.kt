@@ -44,9 +44,9 @@ class AppViewModel(
                     snackBarEvent.emit(it.error!!)
                     ticTacToeService.resetError()
                 }
-                if (it.isGameStarted && it.isOpponentQuitGame) {
-                    snackBarEvent.emit("${it.opponent.opponentName} quit game")
-                }
+//                if (it.isGameStarted && it.isOpponentQuitGame) {
+//                    snackBarEvent.emit("${it.opponent.opponentName} quit game")
+//                }
             }
         }
     }
