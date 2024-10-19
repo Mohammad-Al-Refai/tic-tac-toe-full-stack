@@ -7,6 +7,7 @@ import com.example.tictactoe.models.Game
 import com.example.tictactoe.models.GameState
 import com.example.tictactoe.network.TicTacToeService
 import com.example.tictactoe.ui.Routes
+import com.example.tictactoe.ui.utils.GET_AVAILABLE_GAMES_DELAY
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,6 @@ class LandingViewModel(
     val gameState: StateFlow<GameState>,
 ) : ViewModel() {
     private var availableGamesJob: Job? = null
-    private val GET_AVAILABLE_GAMES_DELAY = 5000L
 
     init {
         ticTacToeService.resetGameState()

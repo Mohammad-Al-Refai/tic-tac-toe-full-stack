@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tictactoe.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,9 +23,9 @@ fun CustomToolBar(clientName: String) {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row {
-                Text(text = "Tic", color = MaterialTheme.colorScheme.primary)
-                Text(text = "Tac", color = MaterialTheme.colorScheme.secondary)
-                Text(text = "Toe", color = MaterialTheme.colorScheme.tertiary)
+                Text(text = "Tic", color = MaterialTheme.colorScheme.primary, style = Typography.titleLarge)
+                Text(text = "Tac", color = MaterialTheme.colorScheme.secondary, style = Typography.titleLarge)
+                Text(text = "Toe", color = MaterialTheme.colorScheme.tertiary, style = Typography.titleLarge)
             }
             Text(
                 fontSize = 13.sp,
