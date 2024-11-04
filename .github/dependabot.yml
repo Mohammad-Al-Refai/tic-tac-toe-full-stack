@@ -3,19 +3,19 @@ updates:
   - package-ecosystem: gradle
     directory: "/backend"
     schedule:
-      interval: daily
+      interval: weekly
   
   - package-ecosystem: gradle
     directory: "/android"
     schedule:
-      interval: daily
+      interval: weekly
       
   - package-ecosystem: npm
     directory: "/frontend"
     schedule:
-      interval: daily
+      interval: weekly
     groups:
-      dev-dependencies:
+      eslint:
         patterns:
           - "*eslint*"  
-    open-pull-requests-limit: 100
+    open-pull-requests-limit: 10
