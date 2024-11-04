@@ -21,7 +21,7 @@
     "react-use-websocket": "4.10.1",
     "styled-components": "^6.1.13",
     "uuid": "^10.0.0",
-    "vite-plugin-svgr": "^4.2.0"
+    "vite-plugin-svgr": "^4.3.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
