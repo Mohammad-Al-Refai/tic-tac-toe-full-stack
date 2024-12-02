@@ -39,7 +39,7 @@ navigation-compose = { module = "androidx.navigation:navigation-compose", versio
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "vm" }
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.7.3" }
-konfetti-compose = { module = "nl.dionsegijn:konfetti-compose", version = "2.0.4" }
+konfetti-compose = { module = "nl.dionsegijn:konfetti-compose", version = "2.0.5" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
